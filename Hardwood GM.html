@@ -1,0 +1,1566 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Hardwood GM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabecera tipo marcador + pestañas; contenido en tarjetas y tablas densas. */
+:root{
+  --bg:#EDEFF3; --panel:#FFFFFF; --soft:#F3F5F9; --ink:#101827; --muted:#5B6577; --line:#D8DCE4;
+  --accent:#D9480F; --accent-ink:#FFFFFF; --good:#12805C; --bad:#C2301E; --warn:#9A5B00; --hl:#FFEFE4;
+  --display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1220; --panel:#131C2E; --soft:#0F1727; --ink:#E8ECF4; --muted:#9AA6BD; --line:#25324A;
+  --accent:#FF8A4C; --accent-ink:#1A0E05; --good:#3DD6A0; --bad:#FF7A6B; --warn:#F2B24C; --hl:#3A2A22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --panel:#131C2E; --soft:#0F1727; --ink:#E8ECF4; --muted:#9AA6BD; --line:#25324A;
+  --accent:#FF8A4C; --accent-ink:#1A0E05; --good:#3DD6A0; --bad:#FF7A6B; --warn:#F2B24C; --hl:#3A2A22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;
+  padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3,h4{margin:0;font-family:var(--display);font-weight:800;letter-spacing:.02em;text-wrap:balance}
+h2{font-size:22px;text-transform:uppercase}
+h3{font-size:16px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
+h4{font-size:13px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em;font-weight:600}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--team,var(--accent));border-radius:10px;padding:14px 16px}
+.top .id{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 260px}
+.top .id h1{font-size:30px;line-height:1;text-transform:uppercase}
+.top .sub{color:var(--muted);font-size:13px}
+.score{display:flex;gap:22px;align-items:flex-end}
+.score div{display:flex;flex-direction:column;align-items:flex-start}
+.score b{font-family:var(--display);font-size:34px;line-height:1;font-weight:800}
+.score span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tb{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:26px;padding:0 7px;border-radius:5px;background:var(--c);color:var(--t);
+  font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.06em;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent)}
+.tb.lg{min-width:52px;height:38px;font-size:21px;border-radius:7px}
+
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button:hover{color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.full{grid-column:1/-1}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--soft);padding:9px 14px;border-radius:7px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.pri:hover:not(:disabled){filter:brightness(1.07)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{color:var(--bad)}
+
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.me td{background:var(--hl)}
+tr.cut td{border-top:2px dashed var(--muted)}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--soft)}
+.pill{display:inline-block;min-width:22px;text-align:center;padding:1px 6px;border-radius:4px;font-weight:700;font-size:12px;color:#fff}
+.pill.w{background:var(--good)} .pill.l{background:var(--bad)}
+:root[data-theme="dark"] .pill{color:#0B1220}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill{color:#0B1220}}
+.ovr{font-family:var(--display);font-weight:800;font-size:18px}
+.next{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.next .vs{font-family:var(--display);font-size:26px;font-weight:800;text-transform:uppercase;line-height:1.05}
+.list{display:flex;flex-direction:column;gap:2px}
+.row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border-bottom:0}
+.row .grow{flex:1 1 120px;min-width:0}
+select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:8px 10px;max-width:100%}
+.note{font-size:12px;color:var(--muted)}
+.save{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--good)} .dot.err{background:var(--warn)}
+
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:8px}
+.pick{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;min-width:0}
+.pick:hover{border-color:var(--accent)}
+.pick .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick .m{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick > div{min-width:0}
+.hero{display:flex;flex-direction:column;gap:6px;max-width:62ch}
+.hero h1{font-size:44px;line-height:.95;text-transform:uppercase}
+
+input[type=range]{accent-color:var(--accent);width:100%;min-width:130px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+.chk{display:flex;align-items:center;gap:10px;padding:6px 4px;border-bottom:1px solid var(--line);cursor:pointer;min-width:0}
+.chk:last-child{border-bottom:0}
+.chk.on{background:var(--hl)}
+.chk .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.verdict{border-left:4px solid var(--muted);padding:8px 12px;background:var(--soft);border-radius:0 7px 7px 0}
+.verdict.ok{border-color:var(--good)} .verdict.mid{border-color:var(--warn)} .verdict.no{border-color:var(--bad)}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+
+.bracket{display:grid;grid-template-columns:repeat(3,minmax(160px,1fr));gap:12px;min-width:520px}
+.rc{display:flex;flex-direction:column;gap:8px;justify-content:space-around}
+.ser{border:1px solid var(--line);border-radius:7px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;background:var(--soft)}
+.ser.me{border-color:var(--accent);background:var(--hl)}
+.ser.ph{color:var(--muted);font-size:12px;text-align:center;padding:14px 8px}
+.ser .sr{display:flex;align-items:center;gap:8px}
+.ser .sr b{margin-left:auto;font-family:var(--display);font-size:20px}
+.ser .sr.win b{color:var(--good)}
+.ser .sr:not(.win) .tb{opacity:.9}
+.ser .sd{font-size:11px}
+.ser.done .sr:not(.win){opacity:.55}
+@media (max-width:520px){.top .id h1{font-size:24px}.score b{font-size:28px}.hero h1{font-size:36px}}
+@media (prefers-reduced-motion:no-preference){.btn{transition:border-color .15s,filter .15s}}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:max-content;max-width:100%}
+.seg button{padding:7px 12px;background:var(--soft);border:0;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+input#mgrName{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--soft);color:var(--ink);font:inherit;max-width:280px}
+.live{position:fixed;inset:0;background:rgba(5,10,20,.72);z-index:60;display:flex;align-items:center;justify-content:center;padding:12px}
+.lv-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;width:min(760px,100%);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.lv-top{display:flex;align-items:center;justify-content:center;gap:16px}
+.lv-sc{font-family:var(--display);font-size:52px;line-height:1}
+.lv-mid{display:flex;justify-content:center;gap:12px;align-items:baseline;font-size:18px}
+.lv-bar{height:6px;background:var(--soft);border-radius:3px;overflow:hidden}.lv-bar i{display:block;height:100%;background:var(--accent)}
+.lv-body{display:grid;grid-template-columns:3fr 2fr;gap:14px}
+.lv-feed{display:flex;flex-direction:column;gap:5px;min-height:150px;font-size:13px}.lv-feed .q{color:var(--accent);font-weight:700}
+.lv-side{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.lv-ctl{justify-content:center}
+@media (max-width:620px){.lv-body{grid-template-columns:1fr}.lv-sc{font-size:40px}}
+.gr{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.gr.on{background:var(--hl)}.gr.sel{border-color:var(--accent)}.gr .gp{width:12px;color:var(--accent)}
+.gr .en{width:44px;height:6px;background:var(--soft);border-radius:3px;overflow:hidden;display:inline-block}.gr .en i{display:block;height:100%}
+.gr .num{min-width:26px;text-align:right}
+</style>
+<div class="wrap" id="app"><p class="muted">Cargando tu partida…</p></div>
+<script>
+"use strict";
+const DATA={"Boston Celtics":[{"name":"Jayson Tatum","pos":"PF","age":28,"ovr":91,"pot":91},{"name":"Derrick White","pos":"SG","age":32,"ovr":80,"pot":80},{"name":"Payton Pritchard","pos":"PG","age":28,"ovr":77,"pot":77},{"name":"Paul George","pos":"SF","age":36,"ovr":74,"pot":74},{"name":"Mitchell Robinson","pos":"C","age":28,"ovr":72,"pot":72},{"name":"Neemias Queta","pos":"C","age":27,"ovr":72,"pot":72},{"name":"Sam Hauser","pos":"SF","age":28,"ovr":70,"pot":70},{"name":"Luka Garza","pos":"C","age":27,"ovr":68,"pot":68},{"name":"Mike Conley","pos":"PG","age":39,"ovr":66,"pot":66},{"name":"Chris Cenac Jr.","pos":"PF","age":19,"ovr":63,"pot":80},{"name":"Baylor Scheierman","pos":"SG","age":26,"ovr":62,"pot":68},{"name":"Hugo Gonzalez","pos":"SF","age":20,"ovr":62,"pot":76},{"name":"Jordan Walsh","pos":"SG","age":22,"ovr":58,"pot":64},{"name":"Ron Harper Jr.","pos":"SF","age":26,"ovr":58,"pot":62}],"Brooklyn Nets":[{"name":"Julius Randle","pos":"PF","age":31,"ovr":78,"pot":78},{"name":"Michael Porter Jr.","pos":"SF","age":28,"ovr":76,"pot":76},{"name":"Noah Clowney","pos":"PF","age":22,"ovr":70,"pot":75},{"name":"Keon Ellis","pos":"SG","age":26,"ovr":68,"pot":68},{"name":"Egor Demin","pos":"SG","age":20,"ovr":66,"pot":76},{"name":"Day'Ron Sharpe","pos":"C","age":24,"ovr":66,"pot":68},{"name":"Moritz Wagner","pos":"C","age":29,"ovr":66,"pot":66},{"name":"Mikel Brown Jr.","pos":"PG","age":20,"ovr":66,"pot":80},{"name":"Danny Wolf","pos":"PF","age":22,"ovr":66,"pot":74},{"name":"Nolan Traore","pos":"PG","age":20,"ovr":65,"pot":76},{"name":"Ben Saraf","pos":"SG","age":20,"ovr":62,"pot":74},{"name":"Joshua Jefferson","pos":"PF","age":22,"ovr":62,"pot":66},{"name":"Josh Minott","pos":"SF","age":23,"ovr":60,"pot":64},{"name":"Drake Powell","pos":"SF","age":21,"ovr":60,"pot":68},{"name":"Chaney Johnson","pos":"SF","age":24,"ovr":58,"pot":62}],"New York Knicks":[{"name":"Jalen Brunson","pos":"PG","age":30,"ovr":91,"pot":91},{"name":"Karl-Anthony Towns","pos":"C","age":30,"ovr":87,"pot":87},{"name":"OG Anunoby","pos":"SF","age":29,"ovr":82,"pot":82},{"name":"Mikal Bridges","pos":"SF","age":30,"ovr":78,"pot":78},{"name":"Josh Hart","pos":"SG","age":31,"ovr":76,"pot":76},{"name":"Miles McBride","pos":"PG","age":26,"ovr":72,"pot":72},{"name":"Jordan Clarkson","pos":"SG","age":34,"ovr":70,"pot":70},{"name":"Andre Drummond","pos":"C","age":33,"ovr":66,"pot":66},{"name":"Jose Alvarado","pos":"PG","age":28,"ovr":66,"pot":66},{"name":"Landry Shamet","pos":"SG","age":29,"ovr":62,"pot":62},{"name":"Tyler Kolek","pos":"PG","age":25,"ovr":62,"pot":66},{"name":"James Wiseman","pos":"C","age":25,"ovr":60,"pot":64},{"name":"Pacome Dadiet","pos":"SF","age":21,"ovr":60,"pot":68},{"name":"Mohamed Diawara","pos":"PF","age":21,"ovr":58,"pot":70},{"name":"Jaden Akins","pos":"SG","age":23,"ovr":56,"pot":60}],"Philadelphia 76ers":[{"name":"Joel Embiid","pos":"C","age":32,"ovr":88,"pot":88},{"name":"Tyrese Maxey","pos":"PG","age":25,"ovr":88,"pot":89},{"name":"Jaylen Brown","pos":"SF","age":30,"ovr":87,"pot":87},{"name":"LeBron James","pos":"SF","age":41,"ovr":86,"pot":86},{"name":"VJ Edgecombe","pos":"SG","age":21,"ovr":74,"pot":86},{"name":"Anfernee Simons","pos":"SG","age":27,"ovr":74,"pot":74},{"name":"Kentavious Caldwell-Pope","pos":"SG","age":33,"ovr":68,"pot":68},{"name":"Adem Bona","pos":"C","age":23,"ovr":66,"pot":72},{"name":"Dean Wade","pos":"PF","age":29,"ovr":66,"pot":66},{"name":"Labaron Philon Jr.","pos":"PG","age":20,"ovr":62,"pot":74},{"name":"Justin Edwards","pos":"SF","age":22,"ovr":62,"pot":68},{"name":"Jabari Walker","pos":"PF","age":24,"ovr":60,"pot":64},{"name":"Caleb Love","pos":"SG","age":25,"ovr":58,"pot":60}],"Toronto Raptors":[{"name":"Scottie Barnes","pos":"SF","age":25,"ovr":86,"pot":88},{"name":"Kawhi Leonard","pos":"SF","age":35,"ovr":86,"pot":86},{"name":"Immanuel Quickley","pos":"PG","age":27,"ovr":77,"pot":77},{"name":"RJ Barrett","pos":"SF","age":26,"ovr":76,"pot":77},{"name":"Jakob Poeltl","pos":"C","age":31,"ovr":72,"pot":72},{"name":"Collin Murray-Boyles","pos":"PF","age":21,"ovr":70,"pot":80},{"name":"Trayce Jackson-Davis","pos":"PF","age":26,"ovr":68,"pot":70},{"name":"Jamal Shead","pos":"PG","age":24,"ovr":66,"pot":70},{"name":"Ja'Kobe Walter","pos":"SG","age":22,"ovr":64,"pot":72},{"name":"Kyle Anderson","pos":"SF","age":33,"ovr":64,"pot":64},{"name":"Jaden Bradley","pos":"SG","age":23,"ovr":62,"pot":70},{"name":"Allen Graves","pos":"PF","age":20,"ovr":62,"pot":80},{"name":"Alijah Martin","pos":"SG","age":24,"ovr":60,"pot":64},{"name":"Jamison Battle","pos":"SF","age":25,"ovr":60,"pot":62}],"Chicago Bulls":[{"name":"Josh Giddey","pos":"PG","age":24,"ovr":77,"pot":80},{"name":"Norman Powell","pos":"SG","age":33,"ovr":77,"pot":77},{"name":"Matas Buzelis","pos":"SF","age":22,"ovr":74,"pot":84},{"name":"Tre Jones","pos":"PG","age":26,"ovr":72,"pot":72},{"name":"Isaac Okoro","pos":"SF","age":25,"ovr":68,"pot":68},{"name":"Buddy Hield","pos":"SG","age":32,"ovr":68,"pot":68},{"name":"Zach Collins","pos":"C","age":28,"ovr":68,"pot":68},{"name":"Caleb Wilson","pos":"PF","age":20,"ovr":68,"pot":86},{"name":"Jordan Hawkins","pos":"SG","age":24,"ovr":68,"pot":72},{"name":"Jalen Smith","pos":"C","age":26,"ovr":66,"pot":68},{"name":"Leonard Miller","pos":"PF","age":22,"ovr":62,"pot":70},{"name":"Dailyn Swain","pos":"SF","age":21,"ovr":62,"pot":72},{"name":"Noa Essengue","pos":"PF","age":19,"ovr":60,"pot":76},{"name":"Tobe Awaka","pos":"PF","age":22,"ovr":58,"pot":64},{"name":"Jaylin Sellers","pos":"SG","age":23,"ovr":56,"pot":60}],"Cleveland Cavaliers":[{"name":"Donovan Mitchell","pos":"SG","age":30,"ovr":90,"pot":90},{"name":"Evan Mobley","pos":"PF","age":25,"ovr":86,"pot":88},{"name":"James Harden","pos":"PG","age":37,"ovr":80,"pot":80},{"name":"Jarrett Allen","pos":"C","age":28,"ovr":78,"pot":78},{"name":"Peyton Watson","pos":"SF","age":24,"ovr":74,"pot":76},{"name":"Jaylon Tyson","pos":"SG","age":23,"ovr":72,"pot":78},{"name":"Sam Merrill","pos":"SG","age":30,"ovr":70,"pot":70},{"name":"Mario Hezonja","pos":"PF","age":31,"ovr":68,"pot":68},{"name":"Craig Porter Jr.","pos":"PG","age":26,"ovr":64,"pot":66},{"name":"Tyrese Proctor","pos":"PG","age":22,"ovr":62,"pot":72},{"name":"Thomas Bryant","pos":"C","age":29,"ovr":62,"pot":62},{"name":"Meleek Thomas","pos":"SG","age":20,"ovr":60,"pot":76},{"name":"Khalifa Diop","pos":"C","age":24,"ovr":56,"pot":60},{"name":"Nae'Qwan Tomlin","pos":"PF","age":25,"ovr":56,"pot":58}],"Detroit Pistons":[{"name":"Cade Cunningham","pos":"PG","age":25,"ovr":91,"pot":93},{"name":"Jalen Duren","pos":"C","age":22,"ovr":80,"pot":84},{"name":"Ausar Thompson","pos":"SF","age":23,"ovr":76,"pot":82},{"name":"John Collins","pos":"PF","age":29,"ovr":70,"pot":70},{"name":"Duncan Robinson","pos":"SF","age":32,"ovr":70,"pot":70},{"name":"Isaiah Joe","pos":"SG","age":27,"ovr":68,"pot":68},{"name":"Kevin Huerter","pos":"SG","age":28,"ovr":66,"pot":66},{"name":"Ron Holland II","pos":"SF","age":21,"ovr":66,"pot":78},{"name":"Daniss Jenkins","pos":"PG","age":25,"ovr":66,"pot":70},{"name":"Taurean Prince","pos":"SF","age":32,"ovr":64,"pot":64},{"name":"Ebuka Okorie","pos":"PG","age":19,"ovr":62,"pot":78},{"name":"Javonte Green","pos":"SF","age":33,"ovr":62,"pot":62},{"name":"Paul Reed","pos":"PF","age":27,"ovr":62,"pot":62},{"name":"Tolu Smith","pos":"PF","age":26,"ovr":58,"pot":62}],"Indiana Pacers":[{"name":"Tyrese Haliburton","pos":"PG","age":26,"ovr":84,"pot":86},{"name":"Pascal Siakam","pos":"PF","age":32,"ovr":82,"pot":82},{"name":"Ivica Zubac","pos":"C","age":29,"ovr":78,"pot":78},{"name":"Andrew Nembhard","pos":"PG","age":26,"ovr":76,"pot":76},{"name":"Aaron Nesmith","pos":"SF","age":27,"ovr":72,"pot":72},{"name":"Obi Toppin","pos":"PF","age":28,"ovr":70,"pot":70},{"name":"Jarace Walker","pos":"PF","age":23,"ovr":70,"pot":76},{"name":"Kelly Oubre Jr.","pos":"SF","age":30,"ovr":68,"pot":68},{"name":"Jay Huff","pos":"C","age":29,"ovr":66,"pot":66},{"name":"Larry Nance Jr.","pos":"PF","age":33,"ovr":64,"pot":64},{"name":"Ben Sheppard","pos":"SG","age":25,"ovr":64,"pot":68},{"name":"Quenton Jackson","pos":"SG","age":28,"ovr":62,"pot":62},{"name":"Braden Smith","pos":"PG","age":23,"ovr":62,"pot":70},{"name":"Kobe Brown","pos":"PF","age":26,"ovr":58,"pot":60},{"name":"Jalen Slawson","pos":"SF","age":27,"ovr":56,"pot":58}],"Milwaukee Bucks":[{"name":"Tyler Herro","pos":"SG","age":26,"ovr":80,"pot":80},{"name":"Myles Turner","pos":"C","age":30,"ovr":78,"pot":78},{"name":"Kel'el Ware","pos":"C","age":22,"ovr":72,"pot":80},{"name":"Ryan Rollins","pos":"PG","age":24,"ovr":70,"pot":74},{"name":"Kyle Kuzma","pos":"PF","age":31,"ovr":68,"pot":68},{"name":"Jaime Jaquez Jr.","pos":"SG","age":25,"ovr":68,"pot":72},{"name":"A.J. Green","pos":"SG","age":27,"ovr":66,"pot":66},{"name":"Gary Trent Jr.","pos":"SG","age":27,"ovr":66,"pot":66},{"name":"Brayden Burries","pos":"SG","age":21,"ovr":66,"pot":80},{"name":"Kasparas Jakucionis","pos":"PG","age":20,"ovr":64,"pot":78},{"name":"Ousmane Dieng","pos":"SF","age":23,"ovr":62,"pot":68},{"name":"Nate Ament","pos":"SF","age":19,"ovr":62,"pot":80},{"name":"Jericho Sims","pos":"C","age":28,"ovr":58,"pot":58},{"name":"Bogoljub Markovic","pos":"PF","age":21,"ovr":58,"pot":68}],"Atlanta Hawks":[{"name":"Jalen Johnson","pos":"PF","age":24,"ovr":86,"pot":88},{"name":"Dyson Daniels","pos":"SG","age":23,"ovr":78,"pot":83},{"name":"Onyeka Okongwu","pos":"C","age":25,"ovr":76,"pot":77},{"name":"Nickeil Alexander-Walker","pos":"SG","age":28,"ovr":74,"pot":74},{"name":"C.J. McCollum","pos":"SG","age":35,"ovr":72,"pot":72},{"name":"Luguentz Dort","pos":"SF","age":27,"ovr":70,"pot":70},{"name":"Kingston Flemings","pos":"PG","age":19,"ovr":68,"pot":84},{"name":"Corey Kispert","pos":"SF","age":27,"ovr":67,"pot":68},{"name":"Aaron Wiggins","pos":"SG","age":27,"ovr":66,"pot":67},{"name":"Dorian Finney-Smith","pos":"SF","age":33,"ovr":66,"pot":66},{"name":"Asa Newell","pos":"PF","age":21,"ovr":63,"pot":78},{"name":"Jock Landale","pos":"C","age":31,"ovr":62,"pot":62},{"name":"Zuby Ejiofor","pos":"PF","age":22,"ovr":60,"pot":72}],"Charlotte Hornets":[{"name":"Brandon Miller","pos":"SF","age":23,"ovr":84,"pot":88},{"name":"Naz Reid","pos":"C","age":27,"ovr":74,"pot":74},{"name":"Grayson Allen","pos":"SG","age":31,"ovr":70,"pot":70},{"name":"Ryan Kalkbrenner","pos":"C","age":24,"ovr":70,"pot":73},{"name":"Dennis Schröder","pos":"PG","age":33,"ovr":68,"pot":68},{"name":"Moussa Diabate","pos":"PF","age":24,"ovr":66,"pot":68},{"name":"Royce O'Neale","pos":"SF","age":33,"ovr":66,"pot":66},{"name":"Tidjane Salaün","pos":"PF","age":21,"ovr":64,"pot":74},{"name":"Hannes Steinbach","pos":"PF","age":20,"ovr":64,"pot":78},{"name":"Christian Anderson","pos":"PG","age":20,"ovr":62,"pot":78},{"name":"Sion James","pos":"SG","age":23,"ovr":62,"pot":66},{"name":"Liam McNeeley","pos":"SF","age":21,"ovr":62,"pot":74},{"name":"PJ Hall","pos":"C","age":24,"ovr":60,"pot":66}],"Miami Heat":[{"name":"Giannis Antetokounmpo","pos":"PF","age":31,"ovr":96,"pot":96},{"name":"Bam Adebayo","pos":"C","age":29,"ovr":87,"pot":87},{"name":"Andrew Wiggins","pos":"SF","age":31,"ovr":74,"pot":74},{"name":"Davion Mitchell","pos":"PG","age":28,"ovr":72,"pot":72},{"name":"Bobby Portis","pos":"PF","age":31,"ovr":70,"pot":70},{"name":"Nikola Jovic","pos":"SF","age":23,"ovr":70,"pot":74},{"name":"Tim Hardaway Jr.","pos":"SG","age":34,"ovr":66,"pot":66},{"name":"Pelle Larsson","pos":"SG","age":25,"ovr":66,"pot":68},{"name":"Klay Thompson","pos":"SG","age":36,"ovr":66,"pot":66},{"name":"Nick Richards","pos":"C","age":28,"ovr":64,"pot":64},{"name":"Dru Smith","pos":"PG","age":28,"ovr":62,"pot":62},{"name":"Simone Fontecchio","pos":"SF","age":30,"ovr":62,"pot":62},{"name":"Ryan Conwell","pos":"SG","age":22,"ovr":60,"pot":68},{"name":"Myron Gardner","pos":"PF","age":25,"ovr":56,"pot":58}],"Orlando Magic":[{"name":"Paolo Banchero","pos":"PF","age":23,"ovr":88,"pot":92},{"name":"Franz Wagner","pos":"SF","age":25,"ovr":84,"pot":86},{"name":"Desmond Bane","pos":"SG","age":28,"ovr":82,"pot":82},{"name":"Jalen Suggs","pos":"SG","age":25,"ovr":78,"pot":80},{"name":"Wendell Carter Jr.","pos":"C","age":27,"ovr":72,"pot":73},{"name":"Anthony Black","pos":"PG","age":22,"ovr":70,"pot":78},{"name":"Tristan da Silva","pos":"SF","age":25,"ovr":68,"pot":71},{"name":"Nikola Vucevic","pos":"C","age":36,"ovr":68,"pot":68},{"name":"Jase Richardson","pos":"SG","age":21,"ovr":64,"pot":74},{"name":"Jevon Carter","pos":"PG","age":31,"ovr":64,"pot":64},{"name":"Goga Bitadze","pos":"C","age":27,"ovr":62,"pot":62},{"name":"Jamal Cain","pos":"SF","age":27,"ovr":56,"pot":57},{"name":"Colin Castleton","pos":"C","age":26,"ovr":56,"pot":57},{"name":"Alex Morales","pos":"PG","age":28,"ovr":55,"pot":55}],"Washington Wizards":[{"name":"Anthony Davis","pos":"PF","age":33,"ovr":86,"pot":86},{"name":"Trae Young","pos":"PG","age":28,"ovr":82,"pot":82},{"name":"Alex Sarr","pos":"C","age":21,"ovr":74,"pot":84},{"name":"AJ Dybantsa","pos":"SF","age":19,"ovr":74,"pot":92},{"name":"Deandre Ayton","pos":"C","age":28,"ovr":73,"pot":73},{"name":"Bilal Coulibaly","pos":"SF","age":22,"ovr":72,"pot":78},{"name":"Tre Johnson","pos":"SG","age":20,"ovr":68,"pot":80},{"name":"Khris Middleton","pos":"SF","age":35,"ovr":68,"pot":68},{"name":"Bub Carrington","pos":"PG","age":21,"ovr":66,"pot":76},{"name":"Kyshawn George","pos":"SF","age":22,"ovr":66,"pot":74},{"name":"Justin Champagnie","pos":"SF","age":25,"ovr":64,"pot":66},{"name":"Tre Mann","pos":"PG","age":25,"ovr":64,"pot":66},{"name":"Will Riley","pos":"SF","age":20,"ovr":62,"pot":74},{"name":"Reece Beekman","pos":"PG","age":25,"ovr":58,"pot":60},{"name":"Anthony Gill","pos":"PF","age":34,"ovr":58,"pot":58}],"Denver Nuggets":[{"name":"Nikola Jokić","pos":"C","age":31,"ovr":99,"pot":99},{"name":"Jamal Murray","pos":"PG","age":29,"ovr":86,"pot":86},{"name":"Aaron Gordon","pos":"PF","age":31,"ovr":78,"pot":78},{"name":"Christian Braun","pos":"SG","age":25,"ovr":76,"pot":77},{"name":"DeMar DeRozan","pos":"SF","age":37,"ovr":76,"pot":76},{"name":"Cameron Johnson","pos":"SF","age":30,"ovr":74,"pot":74},{"name":"Tyus Jones","pos":"PG","age":30,"ovr":68,"pot":68},{"name":"DaRon Holmes II","pos":"PF","age":24,"ovr":64,"pot":68},{"name":"Ryan Nembhard","pos":"PG","age":23,"ovr":64,"pot":68},{"name":"Marvin Bagley III","pos":"PF","age":27,"ovr":62,"pot":63},{"name":"Cam Whitmore","pos":"SF","age":22,"ovr":62,"pot":70},{"name":"Trevon Brazile","pos":"PF","age":23,"ovr":60,"pot":66},{"name":"Bryce Hopkins","pos":"PF","age":24,"ovr":58,"pot":62},{"name":"Alpha Diallo","pos":"SG","age":29,"ovr":58,"pot":58},{"name":"Zeke Nnaji","pos":"PF","age":25,"ovr":58,"pot":59}],"Minnesota Timberwolves":[{"name":"Anthony Edwards","pos":"SG","age":25,"ovr":94,"pot":96},{"name":"LaMelo Ball","pos":"PG","age":25,"ovr":86,"pot":88},{"name":"Rudy Gobert","pos":"C","age":34,"ovr":80,"pot":80},{"name":"Jaden McDaniels","pos":"SF","age":26,"ovr":76,"pot":77},{"name":"Jonathan Kuminga","pos":"PF","age":24,"ovr":74,"pot":78},{"name":"Ayo Dosunmu","pos":"SG","age":26,"ovr":70,"pot":70},{"name":"Terrence Shannon Jr.","pos":"SG","age":26,"ovr":68,"pot":70},{"name":"Jaylen Clark","pos":"SG","age":25,"ovr":64,"pot":65},{"name":"Joan Beringer","pos":"C","age":19,"ovr":62,"pot":80},{"name":"Trey Lyles","pos":"PF","age":30,"ovr":62,"pot":62},{"name":"Isaiah Evans","pos":"SF","age":20,"ovr":62,"pot":74},{"name":"Cody Williams","pos":"SF","age":21,"ovr":62,"pot":70},{"name":"Bones Hyland","pos":"PG","age":26,"ovr":60,"pot":62},{"name":"Zyon Pullin","pos":"PG","age":25,"ovr":56,"pot":57}],"Oklahoma City Thunder":[{"name":"Shai Gilgeous-Alexander","pos":"PG","age":28,"ovr":98,"pot":98},{"name":"Jalen Williams","pos":"SF","age":25,"ovr":87,"pot":88},{"name":"Chet Holmgren","pos":"C","age":24,"ovr":86,"pot":88},{"name":"Isaiah Hartenstein","pos":"C","age":28,"ovr":76,"pot":76},{"name":"Ajay Mitchell","pos":"SG","age":24,"ovr":76,"pot":79},{"name":"Cason Wallace","pos":"SG","age":22,"ovr":76,"pot":80},{"name":"Alex Caruso","pos":"SG","age":32,"ovr":74,"pot":74},{"name":"Jared McCain","pos":"SG","age":22,"ovr":70,"pot":74},{"name":"Aday Mara","pos":"C","age":21,"ovr":66,"pot":74},{"name":"Jaylin Williams","pos":"PF","age":24,"ovr":66,"pot":68},{"name":"Kenrich Williams","pos":"SF","age":31,"ovr":60,"pot":60},{"name":"Bennett Stirtz","pos":"PG","age":23,"ovr":60,"pot":68},{"name":"Brooks Barnhizer","pos":"SF","age":24,"ovr":58,"pot":62},{"name":"Josh Dix","pos":"SG","age":22,"ovr":58,"pot":66},{"name":"Micah Peavy","pos":"SF","age":25,"ovr":56,"pot":58}],"Portland Trail Blazers":[{"name":"Ja Morant","pos":"PG","age":27,"ovr":84,"pot":84},{"name":"Deni Avdija","pos":"SF","age":25,"ovr":82,"pot":83},{"name":"Damian Lillard","pos":"PG","age":36,"ovr":78,"pot":78},{"name":"Donovan Clingan","pos":"C","age":22,"ovr":74,"pot":80},{"name":"Jrue Holiday","pos":"SG","age":36,"ovr":74,"pot":74},{"name":"Toumani Camara","pos":"SF","age":26,"ovr":72,"pot":73},{"name":"Scoot Henderson","pos":"PG","age":22,"ovr":72,"pot":78},{"name":"Vit Krejci","pos":"SG","age":26,"ovr":66,"pot":66},{"name":"Robert Williams III","pos":"C","age":29,"ovr":66,"pot":66},{"name":"Yang Hansen","pos":"C","age":21,"ovr":62,"pot":72},{"name":"Sidy Cissoko","pos":"SG","age":22,"ovr":58,"pot":64},{"name":"Jayson Kent","pos":"SF","age":24,"ovr":58,"pot":60},{"name":"Micah Potter","pos":"C","age":28,"ovr":58,"pot":58}],"Utah Jazz":[{"name":"Lauri Markkanen","pos":"PF","age":29,"ovr":86,"pot":86},{"name":"Jaren Jackson Jr.","pos":"PF","age":27,"ovr":84,"pot":84},{"name":"Keyonte George","pos":"PG","age":22,"ovr":78,"pot":82},{"name":"Darryn Peterson","pos":"SG","age":19,"ovr":74,"pot":90},{"name":"Ace Bailey","pos":"SF","age":20,"ovr":70,"pot":84},{"name":"Isaiah Collier","pos":"PG","age":22,"ovr":66,"pot":74},{"name":"Brice Sensabaugh","pos":"SF","age":23,"ovr":66,"pot":70},{"name":"Kyle Filipowski","pos":"C","age":22,"ovr":66,"pot":72},{"name":"Jaxson Hayes","pos":"C","age":26,"ovr":64,"pot":65},{"name":"Svi Mykhailiuk","pos":"SF","age":29,"ovr":62,"pot":62},{"name":"Josh Okogie","pos":"SG","age":28,"ovr":62,"pot":62},{"name":"Josh Green","pos":"SG","age":25,"ovr":62,"pot":64},{"name":"Mo Bamba","pos":"C","age":28,"ovr":58,"pot":58},{"name":"Tony Bradley","pos":"C","age":28,"ovr":55,"pot":55}],"Golden State Warriors":[{"name":"Stephen Curry","pos":"PG","age":38,"ovr":93,"pot":93},{"name":"Draymond Green","pos":"PF","age":36,"ovr":76,"pot":76},{"name":"Brandin Podziemski","pos":"SG","age":23,"ovr":76,"pot":80},{"name":"Al Horford","pos":"C","age":40,"ovr":70,"pot":70},{"name":"De'Anthony Melton","pos":"SG","age":28,"ovr":70,"pot":71},{"name":"Will Richard","pos":"SG","age":23,"ovr":68,"pot":73},{"name":"Yaxel Lendeborg","pos":"PF","age":24,"ovr":68,"pot":74},{"name":"Graham Ike","pos":"C","age":24,"ovr":66,"pot":70},{"name":"Gui Santos","pos":"SF","age":24,"ovr":66,"pot":69},{"name":"Gary Payton II","pos":"SG","age":33,"ovr":65,"pot":65},{"name":"Georges Niang","pos":"PF","age":33,"ovr":64,"pot":64},{"name":"Brandon Williams","pos":"SG","age":26,"ovr":62,"pot":64},{"name":"Charles Bassey","pos":"C","age":26,"ovr":60,"pot":62},{"name":"LJ Cryer","pos":"SG","age":25,"ovr":60,"pot":63},{"name":"Malevy Leons","pos":"SF","age":27,"ovr":56,"pot":57}],"LA Clippers":[{"name":"Darius Garland","pos":"PG","age":26,"ovr":82,"pot":84},{"name":"Rui Hachimura","pos":"PF","age":28,"ovr":74,"pot":74},{"name":"Brook Lopez","pos":"C","age":38,"ovr":72,"pot":72},{"name":"Kris Dunn","pos":"PG","age":32,"ovr":70,"pot":70},{"name":"Derrick Jones Jr.","pos":"SF","age":29,"ovr":69,"pot":69},{"name":"Gradey Dick","pos":"SG","age":22,"ovr":68,"pot":74},{"name":"Isaiah Jackson","pos":"C","age":24,"ovr":66,"pot":70},{"name":"Keaton Wagler","pos":"SG","age":19,"ovr":66,"pot":82},{"name":"Cam Christie","pos":"SG","age":21,"ovr":66,"pot":75},{"name":"Kobe Sanders","pos":"SG","age":24,"ovr":62,"pot":66},{"name":"Nick Martinelli","pos":"PF","age":22,"ovr":60,"pot":66},{"name":"Baba Miller","pos":"PF","age":22,"ovr":58,"pot":66},{"name":"Jalen Pickett","pos":"PG","age":26,"ovr":58,"pot":60}],"Los Angeles Lakers":[{"name":"Luka Doncic","pos":"PG","age":27,"ovr":97,"pot":97},{"name":"Austin Reaves","pos":"SG","age":28,"ovr":84,"pot":85},{"name":"Walker Kessler","pos":"C","age":25,"ovr":76,"pot":79},{"name":"Quentin Grimes","pos":"SG","age":26,"ovr":74,"pot":76},{"name":"Collin Sexton","pos":"SG","age":27,"ovr":72,"pot":72},{"name":"Jake LaRavia","pos":"SF","age":24,"ovr":70,"pot":73},{"name":"Sandro Mamukelashvili","pos":"PF","age":27,"ovr":68,"pot":69},{"name":"Matisse Thybulle","pos":"SF","age":29,"ovr":66,"pot":66},{"name":"Jarred Vanderbilt","pos":"PF","age":27,"ovr":65,"pot":66},{"name":"Ziaire Williams","pos":"SF","age":25,"ovr":64,"pot":67},{"name":"Jaden Hardy","pos":"SG","age":24,"ovr":64,"pot":68},{"name":"Kevon Looney","pos":"C","age":30,"ovr":62,"pot":62},{"name":"Bronny James","pos":"SG","age":22,"ovr":58,"pot":66},{"name":"Chris Manon","pos":"SG","age":24,"ovr":56,"pot":60}],"Phoenix Suns":[{"name":"Devin Booker","pos":"SG","age":30,"ovr":90,"pot":90},{"name":"Jalen Green","pos":"SG","age":24,"ovr":78,"pot":82},{"name":"Miles Bridges","pos":"PF","age":28,"ovr":76,"pot":76},{"name":"Dillon Brooks","pos":"SF","age":30,"ovr":74,"pot":74},{"name":"Ryan Dunn","pos":"SF","age":23,"ovr":68,"pot":74},{"name":"Collin Gillespie","pos":"PG","age":27,"ovr":68,"pot":69},{"name":"Luke Kennard","pos":"SG","age":30,"ovr":68,"pot":68},{"name":"Khaman Maluach","pos":"C","age":20,"ovr":66,"pot":80},{"name":"Duop Reath","pos":"C","age":30,"ovr":66,"pot":66},{"name":"Oso Ighodaro","pos":"PF","age":24,"ovr":66,"pot":70},{"name":"Jordan Goodwin","pos":"PG","age":28,"ovr":64,"pot":64},{"name":"Rasheer Fleming","pos":"PF","age":22,"ovr":62,"pot":68},{"name":"Koa Peat","pos":"PF","age":19,"ovr":62,"pot":78},{"name":"Jamaree Bouyea","pos":"PG","age":27,"ovr":58,"pot":59},{"name":"Pat Spencer","pos":"PG","age":30,"ovr":58,"pot":58}],"Sacramento Kings":[{"name":"Domantas Sabonis","pos":"C","age":30,"ovr":86,"pot":86},{"name":"Zach LaVine","pos":"SG","age":31,"ovr":78,"pot":78},{"name":"Keegan Murray","pos":"PF","age":26,"ovr":76,"pot":78},{"name":"De'Andre Hunter","pos":"SF","age":28,"ovr":74,"pot":74},{"name":"Malik Monk","pos":"SG","age":28,"ovr":74,"pot":74},{"name":"Darius Acuff Jr.","pos":"PG","age":19,"ovr":70,"pot":84},{"name":"Nique Clifford","pos":"SG","age":24,"ovr":68,"pot":72},{"name":"Precious Achiuwa","pos":"PF","age":27,"ovr":64,"pot":65},{"name":"Jonathan Mogbo","pos":"PF","age":25,"ovr":64,"pot":67},{"name":"Alex Karaban","pos":"PF","age":23,"ovr":62,"pot":68},{"name":"Emanuel Sharp","pos":"SG","age":22,"ovr":60,"pot":66},{"name":"Daeqwon Plowden","pos":"SF","age":28,"ovr":58,"pot":58},{"name":"Leaky Black","pos":"SF","age":27,"ovr":56,"pot":57}],"Dallas Mavericks":[{"name":"Kyrie Irving","pos":"PG","age":34,"ovr":86,"pot":86},{"name":"Cooper Flagg","pos":"SF","age":19,"ovr":84,"pot":95},{"name":"P.J. Washington","pos":"PF","age":28,"ovr":74,"pot":75},{"name":"Daniel Gafford","pos":"C","age":28,"ovr":72,"pot":72},{"name":"Naji Marshall","pos":"SF","age":28,"ovr":70,"pot":70},{"name":"Max Christie","pos":"SG","age":23,"ovr":70,"pot":74},{"name":"Zaccharie Risacher","pos":"SF","age":21,"ovr":68,"pot":76},{"name":"Walter Clayton Jr.","pos":"PG","age":23,"ovr":66,"pot":72},{"name":"Morez Johnson Jr.","pos":"PF","age":20,"ovr":64,"pot":76},{"name":"Marcus Sasser","pos":"PG","age":26,"ovr":62,"pot":64},{"name":"Sergio de Larrea","pos":"PG","age":20,"ovr":58,"pot":70},{"name":"Moussa Cisse","pos":"C","age":24,"ovr":58,"pot":62},{"name":"Tobi Lawal","pos":"PF","age":23,"ovr":56,"pot":60},{"name":"Jett Howard","pos":"SG","age":23,"ovr":56,"pot":60}],"Houston Rockets":[{"name":"Kevin Durant","pos":"SF","age":38,"ovr":89,"pot":89},{"name":"Alperen Sengun","pos":"C","age":24,"ovr":87,"pot":89},{"name":"Amen Thompson","pos":"SF","age":23,"ovr":84,"pot":88},{"name":"Jabari Smith Jr.","pos":"PF","age":23,"ovr":78,"pot":82},{"name":"Fred VanVleet","pos":"PG","age":32,"ovr":76,"pot":76},{"name":"Tari Eason","pos":"PF","age":25,"ovr":72,"pot":74},{"name":"Reed Sheppard","pos":"PG","age":22,"ovr":72,"pot":78},{"name":"Marcus Smart","pos":"PG","age":32,"ovr":70,"pot":70},{"name":"Bogdan Bogdanovic","pos":"SG","age":34,"ovr":70,"pot":70},{"name":"Clint Capela","pos":"C","age":32,"ovr":68,"pot":68},{"name":"Steven Adams","pos":"C","age":33,"ovr":66,"pot":66},{"name":"Jae'Sean Tate","pos":"SF","age":31,"ovr":62,"pot":62},{"name":"Isaiah Crawford","pos":"SF","age":25,"ovr":60,"pot":63},{"name":"Bruce Thornton","pos":"PG","age":23,"ovr":58,"pot":62},{"name":"Oscar Tshiebwe","pos":"C","age":26,"ovr":56,"pot":58}],"Memphis Grizzlies":[{"name":"Cameron Boozer","pos":"PF","age":19,"ovr":76,"pot":92},{"name":"Zach Edey","pos":"C","age":24,"ovr":76,"pot":80},{"name":"GG Jackson","pos":"PF","age":21,"ovr":74,"pot":80},{"name":"Ty Jerome","pos":"PG","age":29,"ovr":74,"pot":74},{"name":"Jerami Grant","pos":"PF","age":32,"ovr":72,"pot":72},{"name":"Jaylen Wells","pos":"SF","age":23,"ovr":72,"pot":76},{"name":"Cedric Coward","pos":"SG","age":23,"ovr":70,"pot":76},{"name":"Isaiah Stewart","pos":"C","age":25,"ovr":68,"pot":69},{"name":"Cam Spencer","pos":"SG","age":26,"ovr":66,"pot":68},{"name":"Scotty Pippen Jr.","pos":"PG","age":25,"ovr":62,"pot":63},{"name":"Quinten Post","pos":"C","age":26,"ovr":62,"pot":64},{"name":"Taylor Hendricks","pos":"PF","age":22,"ovr":62,"pot":70},{"name":"Kris Murray","pos":"SF","age":26,"ovr":62,"pot":63}],"New Orleans Pelicans":[{"name":"Zion Williamson","pos":"PF","age":26,"ovr":86,"pot":87},{"name":"Trey Murphy III","pos":"SF","age":26,"ovr":82,"pot":84},{"name":"Jordan Poole","pos":"SG","age":27,"ovr":74,"pot":75},{"name":"Dejounte Murray","pos":"PG","age":30,"ovr":74,"pot":74},{"name":"Herbert Jones","pos":"SF","age":28,"ovr":74,"pot":74},{"name":"Bennedict Mathurin","pos":"SG","age":24,"ovr":74,"pot":77},{"name":"Derik Queen","pos":"C","age":21,"ovr":72,"pot":80},{"name":"Jeremiah Fears","pos":"PG","age":20,"ovr":70,"pot":82},{"name":"Saddiq Bey","pos":"SF","age":27,"ovr":68,"pot":69},{"name":"Yves Missi","pos":"C","age":22,"ovr":68,"pot":75},{"name":"Karlo Matkovic","pos":"PF","age":25,"ovr":64,"pot":67},{"name":"DeAndre Jordan","pos":"C","age":38,"ovr":58,"pot":58},{"name":"Bryce McGowens","pos":"SG","age":23,"ovr":58,"pot":63}],"San Antonio Spurs":[{"name":"Victor Wembanyama","pos":"C","age":22,"ovr":98,"pot":99},{"name":"De'Aaron Fox","pos":"PG","age":28,"ovr":86,"pot":86},{"name":"Stephon Castle","pos":"SG","age":21,"ovr":82,"pot":88},{"name":"Dylan Harper","pos":"PG","age":20,"ovr":76,"pot":89},{"name":"Devin Vassell","pos":"SG","age":26,"ovr":76,"pot":77},{"name":"Keldon Johnson","pos":"SF","age":27,"ovr":70,"pot":70},{"name":"Julian Champagnie","pos":"SF","age":25,"ovr":70,"pot":71},{"name":"Luke Kornet","pos":"C","age":31,"ovr":70,"pot":70},{"name":"Harrison Barnes","pos":"SF","age":34,"ovr":64,"pot":64},{"name":"Carter Bryant","pos":"SF","age":20,"ovr":64,"pot":76},{"name":"Tarris Reed Jr.","pos":"C","age":23,"ovr":60,"pot":66},{"name":"David Jones Garcia","pos":"SF","age":24,"ovr":60,"pot":63},{"name":"Ja'Kobi Gillespie","pos":"PG","age":22,"ovr":58,"pot":64},{"name":"Jordan McLaughlin","pos":"PG","age":30,"ovr":58,"pot":58},{"name":"Maliq Brown","pos":"PF","age":22,"ovr":58,"pot":62}]};
+const TEAMS=[
+["Boston Celtics","BOS","#007A33"],["Brooklyn Nets","BKN","#1A1A1A"],["New York Knicks","NYK","#F58426"],["Philadelphia 76ers","PHI","#006BB6"],["Toronto Raptors","TOR","#CE1141"],
+["Chicago Bulls","CHI","#CE1141"],["Cleveland Cavaliers","CLE","#860038"],["Detroit Pistons","DET","#C8102E"],["Indiana Pacers","IND","#FDBB30"],["Milwaukee Bucks","MIL","#00471B"],
+["Atlanta Hawks","ATL","#E03A3E"],["Charlotte Hornets","CHA","#1D1160"],["Miami Heat","MIA","#98002E"],["Orlando Magic","ORL","#0077C0"],["Washington Wizards","WAS","#002B5C"],
+["Denver Nuggets","DEN","#0E2240"],["Minnesota Timberwolves","MIN","#236192"],["Oklahoma City Thunder","OKC","#007AC1"],["Portland Trail Blazers","POR","#E03A3E"],["Utah Jazz","UTA","#002B5C"],
+["Golden State Warriors","GSW","#1D428A"],["LA Clippers","LAC","#C8102E"],["Los Angeles Lakers","LAL","#552583"],["Phoenix Suns","PHX","#E56020"],["Sacramento Kings","SAC","#5A2D81"],
+["Dallas Mavericks","DAL","#00538C"],["Houston Rockets","HOU","#CE1141"],["Memphis Grizzlies","MEM","#5D76A9"],["New Orleans Pelicans","NOP","#0C2340"],["San Antonio Spurs","SAS","#8A8D8F"]];
+const DIVS=["Atlántico","Central","Sureste","Noroeste","Pacífico","Suroeste"];
+const CONFS=["Este","Oeste"];
+const ROUNDS=["Primera ronda","Semifinales de conferencia","Finales de conferencia","Finales NBA"];
+const LS="hardwood-gm-save-v1";
+const MIN=[33,32,31,29,27,23,20,17,13,9,6];
+const MINPO=[38,36,35,32,28,22,16,12,9,7,5];
+const PAT=[0,0,1,1,0,1,0];
+const K=2.0;
+const POSR={PG:.55,SG:.7,SF:1,PF:1.5,C:2}, POSA={PG:2.2,SG:1.1,SF:.9,PF:.65,C:.6};
+const START=new Date(2026,9,21);
+
+let LG=false,LGD=null,LKD=null,MYID=null,MYT=-1,LGREV=0,cbusy=false,INTX=false,HOLD='',wantLive=false,seenKey='',lgErr='',unsub=null,mtimer=null,LV=null;
+let S=null, SCH=null, MY=[], view="inicio", viewTeam=0, askNew=false, ldPo=false;
+let tt=-1, gs=new Set(), rs=new Set(), gp=new Set(), rp=new Set(), tmsg="";
+let dbDoc=null, saveState="", saving=false, dirty=false, saveTimer=0;
+
+const $=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function lum(hex){const n=parseInt(hex.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return(.2126*r+.7152*g+.0722*b)/255}
+function tb(i,cls){const t=TEAMS[i];return `<span class="tb ${cls||""}" style="--c:${t[2]};--t:${lum(t[2])>.62?"#111":"#fff"}">${t[1]}</span>`}
+function fmtDate(d){return new Date(START.getFullYear()+(S?S.season||0:0),START.getMonth(),START.getDate()+d).toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short"})}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+
+/* ---------- calendario ---------- */
+function buildSchedule(seed){
+  const rnd=mulberry32(seed),games=[];
+  for(let i=0;i<30;i++)for(let j=i+1;j<30;j++){
+    const di=(i/5)|0,dj=(j/5)|0,ci=i<15?0:1,cj=j<15?0:1;
+    let n;
+    if(ci!==cj)n=2;else if(di===dj)n=4;else{const k=((j%5)-(i%5)+5)%5;n=k<=2?4:3}
+    const first=(i+j)%2===0;
+    for(let g=0;g<n;g++){const home=(g%2===0)?(first?i:j):(first?j:i);games.push([home,home===i?j:i])}
+  }
+  const need=new Array(30).fill(0);games.forEach(([h,a])=>{need[h]++;need[a]++});
+  let rem=games.map((_,k)=>k);const days=[];
+  while(rem.length){
+    const cap=4+Math.floor(rnd()*8),busy=new Uint8Array(30),today=[],left=[];
+    const keyed=rem.map(gi=>[need[games[gi][0]]+need[games[gi][1]]+rnd()*1.5,gi]).sort((a,b)=>b[0]-a[0]);
+    for(const [,gi] of keyed){
+      const [h,a]=games[gi];
+      if(today.length<cap&&!busy[h]&&!busy[a]){busy[h]=busy[a]=1;today.push(gi);need[h]--;need[a]--}else left.push(gi);
+    }
+    days.push(today);rem=left;
+  }
+  return {games,days};
+}
+function setupSchedule(){
+  SCH=buildSchedule(S.seed);MY=[];
+  SCH.days.forEach((ds,d)=>ds.forEach(gi=>{const [h,a]=SCH.games[gi];if(h===S.me||a===S.me)MY.push({d,gi})}));
+}
+const seasonOver=()=>S.day>=SCH.days.length;
+const poDate=()=>SCH.days.length+3+(S.po?S.po.pd:0);
+const TDL=()=>Math.floor(SCH.days.length*.63);
+const offseason=()=>!!(S.po&&S.po.st==="done");
+const tradeOpen=()=>(!seasonOver()&&S.day<=TDL())||offseason();
+const seasonLabel=()=>(2026+S.season)+"-"+String(27+S.season).slice(-2);
+
+/* ---------- alineaciones y fuerza ---------- */
+const healthy=t=>t.pl.filter(p=>!p.i).sort((a,b)=>b.o-a.o);
+function lineupAuto(t,po){const mins=po?MINPO:MIN;return healthy(t).slice(0,11).map((p,k)=>({p,m:mins[k]}))}
+function lineup(t,po){
+  if(t.man){
+    const L=t.pl.filter(p=>!p.i&&p.m>0).sort((a,b)=>b.m-a.m||b.o-a.o).slice(0,13).map(p=>({p,m:p.m}));
+    if(L.length>=5)return L;
+  }
+  return lineupAuto(t,po);
+}
+function strengthL(L){let s=0,sw=0;for(const x of L){const e=x.p.o-Math.max(0,x.m-36)*1.2,w=x.m*x.m;s+=w*e;sw+=w}return sw?s/sw:0}
+const teamStr=t=>strengthL(lineup(t,false));
+function ovrStr(list){return strengthL(list.sort((a,b)=>b-a).slice(0,11).map((o,k)=>({p:{o},m:MIN[k]})))}
+
+/* ---------- simulación ---------- */
+function allocate(total,wts){
+  const noisy=wts.map(w=>w*(.7+Math.random()*.6)),sum=noisy.reduce((a,b)=>a+b,0);
+  const raw=noisy.map(w=>w/sum*total),fl=raw.map(Math.floor);
+  const rem=total-fl.reduce((a,b)=>a+b,0);
+  const order=raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]);
+  for(let k=0;k<rem;k++)fl[order[k%order.length][1]]++;
+  return fl;
+}
+function box(L,pts,teamIdx,po,Pf){
+  const P=Pf||allocate(pts,L.map(x=>x.m*Math.pow(Math.max(x.p.o-42,1),1.7)));
+  const R=allocate(Math.max(30,Math.round(44+gauss()*4.5)),L.map(x=>x.m*POSR[x.p.p]*(x.p.o-35)));
+  const A=allocate(Math.max(14,Math.round(25.5+gauss()*4)),L.map(x=>x.m*POSA[x.p.p]*(x.p.o-35)));
+  let top=["",-1];
+  L.forEach((x,k)=>{
+    const p=x.p,st=po?(p.ps||(p.ps=[0,0,0,0])):p.s;
+    st[0]++;st[1]+=P[k];st[2]+=R[k];st[3]+=A[k];
+    if(P[k]>top[1])top=[p.n,P[k]];
+    if(Math.random()<.0035*Math.pow(x.m/28,1.5)){
+      p.i=2+Math.floor(Math.pow(Math.random(),2)*45);
+      if(isHum(teamIdx)){S.news.unshift([S.ld===undefined?S.day:S.ld,p.n,p.i,teamIdx]);S.news.length=Math.min(S.news.length,24)}
+    }
+  });
+  top.b=L.map((x,k)=>[x.p.n,P[k],x.m,R[k],A[k]]);
+  return top;
+}
+function simGame(h,a,po){
+  const ovk=S.pend?Object.keys(S.pend).find(k=>{const x=S.pend[k];return x.h===h&&x.a===a&&!!x.po===!!po}):undefined;
+  const ov=ovk!==undefined?S.pend[ovk]:null;if(ov)delete S.pend[ovk];
+  const mk=(tm,rows)=>rows.map(r=>({p:S.teams[tm].pl.find(p=>p.n===r[0]),m:r[2],pts:r[1]})).filter(x=>x.p&&x.m>0);
+  let LH=lineup(S.teams[h],po),LA=lineup(S.teams[a],po),P1,P2;
+  if(ov){LH=mk(h,ov.hb);LA=mk(a,ov.ab);P1=LH.map(x=>x.pts);P2=LA.map(x=>x.pts)}
+  const margin=(strengthL(LH)-strengthL(LA))*K+2.6+gauss()*11;
+  const total=Math.max(185,Math.min(270,224+gauss()*10));
+  let ph=Math.round((total+margin)/2),pa=Math.round((total-margin)/2);
+  if(ph===pa){if(margin>=0)ph++;else pa++}
+  if(ov){ph=ov.ph;pa=ov.pa}
+  const t1=box(LH,ph,h,po,P1),t2=box(LA,pa,a,po,P2);
+  if(isHum(h)||isHum(a)){const det={k:Math.random().toString(36).slice(2,8),h,a,ph,pa,po:!!po,d:S.day,hb:t1.b,ab:t2.b};S.dets=S.dets||{};if(isHum(h))S.dets[h]=det;if(isHum(a))S.dets[a]=det}
+  return {ph,pa,top:t1[1]>=t2[1]?t1:t2};
+}
+function playGame(gi){
+  const [h,a]=SCH.games[gi],TH=S.teams[h],TA=S.teams[a];
+  const {ph,pa,top}=simGame(h,a,false);
+  S.R[gi]=[ph,pa];
+  TH.pf+=ph;TH.pa+=pa;TA.pf+=pa;TA.pa+=ph;
+  if(ph>pa){TH.w++;TA.l++}else{TA.w++;TH.l++}
+  S.last.push([h,a,ph,pa]);
+  [h,a].forEach(x=>{if(isHum(x)){const home=x===h;S.log.push([S.day,home?a:h,home?1:0,home?ph:pa,home?pa:ph,top[0],top[1],x])}});
+}
+function tickInjuries(){S.teams.forEach(t=>t.pl.forEach(p=>{if(p.i>0)p.i--}))}
+function simDay(){
+  S.last=[];S.ld=S.day;
+  SCH.days[S.day].forEach(playGame);
+  tickInjuries();
+  S.day++;
+}
+function nextDay(h){for(let d=S.day;d<SCH.days.length;d++)if(SCH.days[d].some(gi=>{const g=SCH.games[gi];return g[0]===h||g[1]===h}))return d;return SCH.days.length-1}
+function simulate(mode){
+  if(!S||seasonOver())return;
+  if(mode==="day")simDay();
+  else if(mode==="week"){for(let k=0;k<7&&!seasonOver();k++)simDay()}
+  else if(mode==="next"){const stop=Math.min(...S.hum.map(h=>nextDay(h)));while(!seasonOver()&&S.day<=stop)simDay()}
+  else if(mode==="pre"){const stop=Math.min(...S.hum.map(h=>nextDay(h)));while(!seasonOver()&&S.day<stop)simDay()}
+  else if(mode==="season"){while(!seasonOver())simDay()}
+  if(seasonOver()&&!S.po)initPO();
+  queueSave();render();
+}
+
+/* ---------- postseason ---------- */
+const pct=t=>(t.w+t.l)?t.w/(t.w+t.l):0;
+function standings(conf){
+  return Array.from({length:15},(_,k)=>conf*15+k).sort((a,b)=>{
+    const A=S.teams[a],B=S.teams[b];
+    return pct(B)-pct(A)||(B.pf-B.pa)-(A.pf-A.pa)||a-b;
+  });
+}
+function rankOf(i){return standings(i<15?0:1).indexOf(i)+1}
+function initPO(){
+  computeAwards();
+  S.po={st:"playin1",seeds:[standings(0),standings(1)],pin:[[],[]],rounds:[],champ:-1,pd:0,s7:[0,0],s8:[0,0],l7:[0,0],w9:[0,0]};
+}
+const ser=(c,x,sx,y,sy)=>({c,t:[x,y],sd:[sx,sy],w:[0,0],g:[],win:-1});
+function poGame(h,a){const r=simGame(h,a,true);S.last.push([h,a,r.ph,r.pa]);return r}
+function poDay(){
+  const po=S.po;po.pd++;S.last=[];S.ld=poDate();
+  if(po.st==="playin1"){
+    for(let c=0;c<2;c++){
+      const s=po.seeds[c],g1=[s[6],s[7]],g2=[s[8],s[9]],r1=poGame(g1[0],g1[1]),r2=poGame(g2[0],g2[1]);
+      po.pin[c]=[{k:"7º contra 8º",t:g1,r:[r1.ph,r1.pa]},{k:"9º contra 10º",t:g2,r:[r2.ph,r2.pa]}];
+      po.s7[c]=r1.ph>r1.pa?g1[0]:g1[1];po.l7[c]=r1.ph>r1.pa?g1[1]:g1[0];po.w9[c]=r2.ph>r2.pa?g2[0]:g2[1];
+    }
+    po.st="playin2";
+  }else if(po.st==="playin2"){
+    for(let c=0;c<2;c++){
+      const g=[po.l7[c],po.w9[c]],r=poGame(g[0],g[1]);
+      po.pin[c].push({k:"Último billete (8º)",t:g,r:[r.ph,r.pa]});
+      po.s8[c]=r.ph>r.pa?g[0]:g[1];
+    }
+    const rd=[];
+    for(let c=0;c<2;c++){
+      const s=po.seeds[c],T=[s[0],s[1],s[2],s[3],s[4],s[5],po.s7[c],po.s8[c]];
+      [[0,7],[3,4],[2,5],[1,6]].forEach(([i,j])=>rd.push(ser(c,T[i],i+1,T[j],j+1)));
+    }
+    po.rounds.push(rd);po.st="r1";
+  }else if(po.st!=="done"){
+    const rd=po.rounds[po.rounds.length-1];
+    for(const s of rd){
+      if(s.win>=0)continue;
+      const side=PAT[s.g.length],h=s.t[side],a=s.t[1-side],r=poGame(h,a);
+      const sc=side===0?[r.ph,r.pa]:[r.pa,r.ph];
+      s.g.push(sc);
+      if(sc[0]>sc[1])s.w[0]++;else s.w[1]++;
+      if(s.w[0]===4)s.win=0;else if(s.w[1]===4)s.win=1;
+    }
+    if(rd.every(s=>s.win>=0))advancePO();
+  }
+  tickInjuries();
+}
+function advancePO(){
+  const po=S.po,rd=po.rounds[po.rounds.length-1],n=rd.length;
+  const Wn=s=>({t:s.t[s.win],sd:s.sd[s.win]});
+  const mk=(c,A,B)=>A.sd<B.sd?ser(c,A.t,A.sd,B.t,B.sd):ser(c,B.t,B.sd,A.t,A.sd);
+  if(n===8){const nr=[];for(let c=0;c<2;c++){const w=rd.slice(c*4,c*4+4).map(Wn);nr.push(mk(c,w[0],w[1]),mk(c,w[2],w[3]))}po.rounds.push(nr);po.st="r2"}
+  else if(n===4){const nr=[];for(let c=0;c<2;c++){const w=rd.slice(c*2,c*2+2).map(Wn);nr.push(mk(c,w[0],w[1]))}po.rounds.push(nr);po.st="cf"}
+  else if(n===2){
+    const e=Wn(rd[0]),w=Wn(rd[1]),eBetter=pct(S.teams[e.t])>=pct(S.teams[w.t]);
+    po.rounds.push([eBetter?ser(-1,e.t,e.sd,w.t,w.sd):ser(-1,w.t,w.sd,e.t,e.sd)]);po.st="finals";
+  }else{
+    const ch=rd[0].t[rd[0].win];po.champ=ch;po.st="done";
+    const c=S.teams[ch].pl.filter(p=>p.ps&&p.ps[0]>0).sort((a,b)=>(b.ps[1]/b.ps[0]+b.o*.1)-(a.ps[1]/a.ps[0]+a.o*.1))[0];
+    if(S.aw)S.aw.fmvp=c?[c.n,ch]:null;
+  }
+}
+function simPO(mode){
+  if(!S||!seasonOver())return;
+  if(!S.po)initPO();
+  const po=S.po;if(po.st==="done")return;
+  if(mode==="day")poDay();
+  else if(mode==="round"){const st=po.st;do{poDay()}while(po.st!=="done"&&po.st===st)}
+  else{while(po.st!=="done")poDay()}
+  queueSave();render();
+}
+function mySeries(){const po=S.po;if(!po)return null;let f=null,ri=-1;po.rounds.forEach((rd,r)=>rd.forEach(s=>{if(s.t.includes(S.me)){f=s;ri=r}}));return f?{s:f,r:ri}:null}
+function poStatus(){
+  const r=rankOf(S.me),po=S.po,ms=mySeries();
+  if(ms){
+    const {s,r:ri}=ms,k=s.t.indexOf(S.me),o=s.t[1-k];
+    if(po.st==="done"&&po.champ===S.me)return {t:"¡Campeones de la NBA!",c:"good"};
+    if(s.win>=0&&s.win!==k)return {t:`Eliminado en ${ROUNDS[ri].toLowerCase()}`,c:"bad"};
+    if(s.win===k)return {t:`Serie ganada contra ${TEAMS[o][0]} (${s.w[k]}–${s.w[1-k]})`,c:"good"};
+    return {t:`${ROUNDS[ri]}: ${s.w[k]}–${s.w[1-k]} contra ${TEAMS[o][0]}`,c:""};
+  }
+  if(!po||po.st==="playin1"||po.st==="playin2"){
+    if(r<=6)return {t:`Clasificado a playoffs como cabeza de serie nº ${r}`,c:"good"};
+    if(r<=10)return {t:po&&po.st==="playin2"?"Sigues vivo en el play-in":"Juegas el play-in",c:"warn"};
+    return {t:"No te has clasificado para playoffs",c:"bad"};
+  }
+  return {t:r<=10?"Eliminado en el play-in":"No te has clasificado para playoffs",c:"bad"};
+}
+function leaders(idx,n,po){
+  const get=p=>po?(p.ps||[0,0,0,0]):p.s;
+  const maxGP=Math.max(0,...S.teams.flatMap(t=>t.pl.map(p=>get(p)[0])));
+  const min=po?Math.max(1,Math.floor(maxGP*.4)):Math.max(1,Math.min(10,Math.floor(maxGP*.5)));
+  const all=[];S.teams.forEach((t,ti)=>t.pl.forEach(p=>{const s=get(p);if(s[0]>=min)all.push([p.n,ti,s[idx]/s[0]])}));
+  return all.sort((a,b)=>b[2]-a[2]).slice(0,n);
+}
+function strengthRank(i){const arr=S.teams.map((t,k)=>[teamStr(t),k]).sort((a,b)=>b[0]-a[0]);return arr.findIndex(x=>x[1]===i)+1}
+
+/* ---------- minutos ---------- */
+function ensureManual(){
+  if(S.teams[S.me].man)return;
+  const t=S.teams[S.me],mm=new Map(lineupAuto(t,false).map(x=>[x.p,x.m])),byOvr=t.pl.slice().sort((a,b)=>b.o-a.o);
+  t.pl.forEach(p=>{p.m=mm.has(p)?mm.get(p):(p.i?(MIN[byOvr.indexOf(p)]||0):0)});
+  t.man=true;
+}
+function setAuto(){S.teams[S.me].pl.forEach(p=>{delete p.m});S.teams[S.me].man=false;queueSave();render()}
+function fit240(){
+  ensureManual();
+  const t=S.teams[S.me],av=t.pl.filter(p=>!p.i&&p.m>0),sum=av.reduce((s,p)=>s+p.m,0);
+  if(!sum)return;
+  av.forEach(p=>{p.m=Math.min(42,Math.round(p.m*240/sum))});
+  let diff=240-av.reduce((s,p)=>s+p.m,0),guard=60;
+  const ord=av.slice().sort((a,b)=>b.m-a.m);
+  for(let k=0;diff!==0&&guard-->0;k++){const p=ord[k%ord.length],d=diff>0?1:-1;if(p.m+d>=1&&p.m+d<=42){p.m+=d;diff-=d}}
+  queueSave();render();
+}
+function minsInfo(){
+  const t=S.teams[S.me],L=lineup(t,false),tot=L.reduce((s,x)=>s+x.m,0);
+  return {L,tot,cur:strengthL(L),auto:strengthL(lineupAuto(t,false))};
+}
+
+/* ---------- traspasos ---------- */
+function pval(p){
+  let e=p.o;const f=p.a<=21?.6:p.a<=23?.5:p.a<=25?.35:p.a<=27?.15:0;
+  e+=Math.max(0,p.t-p.o)*f;if(p.a>30)e-=(p.a-30)*.8;
+  return Math.pow(1.22,e-60);
+}
+function tradeEval(){
+  const me=S.teams[S.me],ot=S.teams[tt];
+  const give=[...gs].map(i=>me.pl[i]).filter(Boolean),get=[...rs].map(i=>ot.pl[i]).filter(Boolean);
+  const gpk=[...gp].map(i=>S.pk[i]).filter(Boolean),rpk=[...rp].map(i=>S.pk[i]).filter(Boolean);
+  const rk=S.teams.map((t,i)=>[teamStr(t),i]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
+  const pv=k=>{const dy=k[0]-S.season;let e;if(k[1]===2)e=56;else if(dy<=0)e=62+.4*rk.indexOf(k[2]);else e=67.5-.6*dy;return Math.pow(1.22,e-60)};
+  const topO=ot.pl.reduce((b,p)=>p.o>b.o?p:b,ot.pl[0]);
+  const recv=give.reduce((s,p)=>s+tval(p),0)+gpk.reduce((s,k)=>s+pv(k),0);
+  const ask=(get.reduce((s,p)=>s+tval(p)*(p===topO?1.3:1),0)+rpk.reduce((s,k)=>s+pv(k),0))*1.1;
+  const nm=cnt(me)-give.length+get.length,no=cnt(ot)-get.length+give.length;
+  const okN=give.length+gpk.length>0&&get.length+rpk.length>0&&nm>=12&&nm<=15&&no>=12&&no<=15;
+  const out=give.reduce((s,p)=>s+(p.c||0),0),inn=get.reduce((s,p)=>s+(p.c||0),0);
+  const chk=(t,o,i,name)=>{const post=payroll(t)-o+i;return (post<=CAP||i<=o*1.25+.1)?null:`${name} quedaría con ${post.toFixed(1)} M, por encima del tope de ${CAP} M, y solo puede recibir hasta el 125% de lo que envía (${(o*1.25+.1).toFixed(1)} M).`};
+  const sal=chk(me,out,inn,"Tu equipo")||chk(ot,inn,out,TEAMS[tt][0]);
+  return {give,get,gpk,rpk,r:ask>0?recv/ask:0,okN,nm,no,sal,out,inn};
+}
+function tradeNames(){
+  const me=S.teams[S.me],ot=S.teams[tt];
+  return {to:tt,give:[...gs].map(i=>me.pl[i]&&me.pl[i].n).filter(Boolean),get:[...rs].map(i=>ot.pl[i]&&ot.pl[i].n).filter(Boolean),
+    gpk:[...gp].map(i=>S.pk[i]).filter(Boolean).map(k=>k.slice(0,3)),rpk:[...rp].map(i=>S.pk[i]).filter(Boolean).map(k=>k.slice(0,3))};
+}
+function loadSel(x,from,to){
+  tt=to;gs.clear();rs.clear();gp.clear();rp.clear();
+  S.teams[from].pl.forEach((p,i)=>{if(x.give.includes(p.n))gs.add(i)});
+  S.teams[to].pl.forEach((p,i)=>{if(x.get.includes(p.n))rs.add(i)});
+  const has=(L,k)=>L.some(g=>g[0]===k[0]&&g[1]===k[1]&&g[2]===k[2]);
+  S.pk.forEach((k,i)=>{if(k[3]===from&&has(x.gpk,k))gp.add(i);if(k[3]===to&&has(x.rpk,k))rp.add(i)});
+}
+function clearSel(){gs.clear();rs.clear();gp.clear();rp.clear()}
+function doTrade(){
+  const ev=tradeEval(),hu=isHum(tt);
+  if(!(ev.okN&&!ev.sal&&(hu||ev.r>=1)&&tradeOpen()))return;
+  if(hu){
+    S.props=S.props||[];
+    S.props.push({id:Math.random().toString(36).slice(2,8),from:S.me,to:tt,give:ev.give.map(p=>p.n),get:ev.get.map(p=>p.n),gpk:ev.gpk.map(k=>k.slice(0,3)),rpk:ev.rpk.map(k=>k.slice(0,3)),d:S.day});
+    tmsg=`Propuesta enviada a ${TEAMS[tt][0]}. Tendrá que aceptarla su mánager.`;clearSel();queueSave();render();return;
+  }
+  applyTrade(ev);
+}
+function propAct(id,acc){
+  const k=(S.props||[]).findIndex(p=>p.id===id);if(k<0){tmsg="Esa propuesta ya no existe.";return}
+  const pr=S.props[k];
+  if(pr.to!==S.me&&pr.from!==S.me)return;
+  S.props.splice(k,1);
+  if(!acc||pr.from===S.me){tmsg=pr.from===S.me?"Propuesta retirada.":"Propuesta rechazada.";return}
+  const m0=S.me,t0=tt;S.me=pr.from;loadSel(pr,pr.from,pr.to);
+  const ev=tradeEval(),n1=ev.give.length+ev.gpk.length,n2=ev.get.length+ev.rpk.length;
+  if(ev.okN&&!ev.sal&&n1===pr.give.length+pr.gpk.length&&n2===pr.get.length+pr.rpk.length&&tradeOpen()){applyTrade(ev);S.me=m0;tt=t0;clearSel();tmsg="Traspaso cerrado.";return}
+  S.me=m0;tt=t0;clearSel();tmsg="La propuesta ya no es válida (cambió algún jugador, la plantilla o los salarios).";
+}
+function applyTrade(ev){
+  const me=S.teams[S.me],ot=S.teams[tt];
+  const pool=me.man?ev.give.map(p=>p.m||0).sort((a,b)=>b-a):[];
+  me.pl=me.pl.filter(p=>!ev.give.includes(p)).concat(ev.get);
+  ot.pl=ot.pl.filter(p=>!ev.get.includes(p)).concat(ev.give);
+  ev.give.forEach(p=>{delete p.m});
+  if(me.man)ev.get.slice().sort((a,b)=>b.o-a.o).forEach((p,k)=>{p.m=pool[k]||0});
+  ev.gpk.forEach(k=>{k[3]=tt});ev.rpk.forEach(k=>{k[3]=S.me});
+  S.trades.unshift([S.day,tt,ev.give.map(p=>p.n).concat(ev.gpk.map(pickLabel)),ev.get.map(p=>p.n).concat(ev.rpk.map(pickLabel)),S.me]);
+  if(isHum(tt))S.trades.unshift([S.day,S.me,ev.get.map(p=>p.n).concat(ev.rpk.map(pickLabel)),ev.give.map(p=>p.n).concat(ev.gpk.map(pickLabel)),tt]);
+  S.trades.length=Math.min(S.trades.length,30);
+  tmsg=`Traspaso cerrado con ${TEAMS[tt][0]}.`;
+  clearSel();queueSave();render();
+}
+
+/* ---------- contratos y tope salarial ---------- */
+const CAP=155,MINC=1.5;
+const salOf=o=>Math.round((1.5+45*Math.pow(Math.max(0,o-55)/44,1.5))*10)/10;
+const faAsk=p=>Math.max(MINC,Math.round(salOf(p.o)*(p.a>=33?.75:p.a<=24?1.05:1)*10)/10);
+const renewAsk=p=>Math.round(salOf(p.o)*(p.a>=33?.8:1.05)*10)/10;
+const yearsFor=p=>p.a<=26?3:p.a<=30?2:1;
+const payroll=t=>t.pl.reduce((s,p)=>s+(p.y>0?(p.c||0):0),0);
+const cnt=t=>t.pl.filter(p=>p.y>0).length;
+const rookieC=k=>k<30?Math.round((11.5-k*.3)*10)/10:1.5;
+const tval=p=>pval(p)*clamp(1+(p.c!=null?(salOf(p.o)-p.c)*.012:0),.7,1.35);
+const pickLabel=k=>(k[1]===1?"1ª":"2ª")+" ronda "+(2027+k[0])+" ("+TEAMS[k[2]][1]+")";
+const mkPicks=y0=>{const a=[];for(let y=y0;y<y0+3;y++)for(let r=1;r<=2;r++)for(let t=0;t<30;t++)a.push([y,r,t,t]);return a};
+function refreshPicks(){
+  S.pk=S.pk.filter(k=>k[0]>=S.season);
+  const y=S.season+2;
+  if(!S.pk.some(k=>k[0]===y))for(let r=1;r<=2;r++)for(let t=0;t<30;t++)S.pk.push([y,r,t,t]);
+}
+function newC(p){p.c=Math.round(salOf(p.o)*(.8+Math.random()*.4)*10)/10;p.y=1+Math.floor(Math.random()*(p.o>=80?5:4));return p}
+function mkp(d){const p=newC({n:d.name,p:d.pos,a:d.age,o:d.ovr,t:d.pot,i:0,s:[0,0,0,0]});if(d.age<=19)p.rk=-1;return p}
+function aiFA(){
+  for(let round=0;round<4;round++){
+    const order=S.teams.map((x,i)=>i).filter(i=>!isHum(i)).sort(()=>Math.random()-.5);
+    for(const i of order){
+      const t=S.teams[i];if(cnt(t)>=15||!S.fa.length)continue;
+      const pay=payroll(t),worst=Math.min(...t.pl.map(p=>p.o));
+      let b=-1;
+      S.fa.forEach((p,k)=>{const a=faAsk(p);if(p.o<=worst||(pay+a>CAP&&a>2))return;if(b<0||pval(p)>pval(S.fa[b]))b=k});
+      if(b>=0){const p=S.fa.splice(b,1)[0];p.c=faAsk(p);p.y=yearsFor(p);t.pl.push(p)}
+    }
+  }
+}
+function rollContracts(){
+  S.teams.forEach((t,ti)=>{
+    t.pl.forEach(p=>{p.y--});
+    if(isHum(ti))return;
+    const keep=[];
+    t.pl.forEach(p=>{
+      if(p.y>0){keep.push(p);return}
+      if(Math.random()<Math.min(.9,.3+(p.o-58)/50)){p.y=yearsFor(p)+(Math.random()<.4?1:0);p.c=Math.round(salOf(p.o)*(.9+Math.random()*.3)*10)/10;keep.push(p)}
+      else S.fa.push(p);
+    });
+    t.pl=keep;
+  });
+  capFA();
+}
+function renew(i){
+  const p=S.teams[S.me].pl[i];if(!p||p.y>0)return;
+  p.c=renewAsk(p);p.y=yearsFor(p);queueSave();render();
+}
+function expCard(){
+  const t=S.teams[S.me],ex=t.pl.map((p,i)=>({p,i})).filter(x=>x.p.y<=0);
+  if(!ex.length)return "";
+  const rows=ex.map(({p,i})=>{const c=renewAsk(p),y=yearsFor(p);return `<div class="row"><span class="grow">${esc(p.n)} <span class="muted">${p.p} · ${p.a} años</span></span><b class="ovr">${p.o}</b><span class="muted num">${c.toFixed(1)} M · ${y} año${y>1?"s":""}</span><button class="btn sm" data-act="renew" data-i="${i}">Renovar</button></div>`}).join("");
+  return `<div class="card"><h3>Contratos que vencen (${ex.length})</h3><p class="note">Si no renuevas, el jugador se marcha a agentes libres al empezar la temporada. Las renovaciones no cuentan para el tope.</p><div class="list">${rows}</div></div>`;
+}
+
+/* ---------- premios ---------- */
+function computeAwards(){
+  const L=[];
+  S.teams.forEach((t,ti)=>t.pl.forEach(p=>{if(p.s[0]<40)return;L.push({p,ti,sc:ppgOf(p)+p.o*.35+pct(t)*22})}));
+  L.sort((a,b)=>b.sc-a.sc);
+  const nm=x=>x?[x.p.n,x.ti]:null,posf={C:1.06,PF:1.03,SF:1,SG:.97,PG:.95};
+  const best=(arr,f)=>arr.reduce((b,x)=>{const v=f(x);return (!b||v>b.v)?{x,v}:b},null);
+  const pick=(arr,f)=>{const r=best(arr,f);return r?r.x:null};
+  const aw={mvp:nm(L[0]),anba:L.slice(0,10).map(x=>[x.p.n,x.ti])};
+  aw.dpoy=nm(pick(L,x=>x.p.o*(posf[x.p.p]||1)+pct(S.teams[x.ti])*8+gauss()*1.5));
+  aw.roy=nm(pick(L.filter(x=>x.p.rk),x=>x.p.o*.4+ppgOf(x.p)));
+  aw.smoy=nm(pick(L.filter(x=>{const k=S.teams[x.ti].pl.slice().sort((a,b)=>b.o-a.o).indexOf(x.p);return k>=5&&k<=9}),x=>ppgOf(x.p)+gauss()*.8));
+  aw.mip=nm(pick(L.filter(x=>x.p.dl>=2&&x.p.a<=27&&!x.p.rk),x=>x.p.dl+gauss()*.5));
+  aw.fmvp=null;
+  S.aw=aw;S.mvp=aw.mvp;
+}
+function awNames(){
+  const a=S.aw||{},o={};
+  ["mvp","dpoy","roy","smoy","mip","fmvp"].forEach(k=>{o[k]=a[k]?a[k][0]:""});
+  return o;
+}
+function vPremios(){
+  const aw=S.aw,hist=(S.hist||[]).slice().reverse();
+  const pal=hist.length?`<div class="card full"><h3>Palmarés</h3><div class="tw"><table><thead><tr><th>Temporada</th><th>Campeón</th><th>MVP</th><th>Defensor</th><th>Rookie</th><th>6º hombre</th><th>Mejorado</th><th>MVP Finales</th></tr></thead><tbody>${hist.map(h=>{const p=h.pr||{};return `<tr><td>${h.y}</td><td>${tb(h.ch)}</td>${["mvp","dpoy","roy","smoy","mip","fmvp"].map(k=>`<td>${p[k]?esc(p[k]):"–"}</td>`).join("")}</tr>`}).join("")}</tbody></table></div></div>`:"";
+  if(!aw)return `<div class="grid"><div class="card full"><h2>Premios</h2><p class="muted" style="max-width:70ch">Los premios individuales y los quintetos All-NBA se deciden al terminar los 82 partidos. El MVP de las Finales se decide al acabar la postseason.</p></div>${pal}</div>`;
+  const rows=[["MVP","mvp"],["Jugador defensivo del año","dpoy"],["Rookie del año","roy"],["Mejor sexto hombre","smoy"],["Jugador más mejorado","mip"],["MVP de las Finales","fmvp"]].map(([l,k])=>{const v=aw[k];return `<tr class="${v&&v[1]===S.me?"me":""}"><td>${l}</td><td>${v?esc(v[0]):"–"}</td><td>${v?tb(v[1]):""}</td></tr>`}).join("");
+  const team=(a,b)=>aw.anba.slice(a,b).map(v=>`<div class="row"><span class="grow">${esc(v[0])}</span>${tb(v[1])}</div>`).join("");
+  return `<div class="grid"><div class="card full"><h2>Premios ${seasonLabel()}</h2><div class="tw"><table><tbody>${rows}</tbody></table></div></div><div class="card"><h3>Primer quinteto All-NBA</h3><div class="list">${team(0,5)}</div></div><div class="card"><h3>Segundo quinteto All-NBA</h3><div class="list">${team(5,10)}</div></div>${pal}</div>`;
+}
+
+/* ---------- utilidades de fase 3 ---------- */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const ppgOf=p=>p.s[0]?p.s[1]/p.s[0]:0;
+const FN=["Marcus","Jalen","Terrence","Darius","Malik","Caleb","Isaiah","Tyrese","Jamal","Devin","Xavier","Elijah","Andre","Cole","Nolan","Mateo","Lucas","Nikola","Luka","Dario","Bogdan","Amadou","Kofi","Youssef","Jonas","Matteo","Rui","Kenji","Dante","Trey","Jabari","Roman","Ibrahima","Santiago","Theo","Declan","Omar","Aleksander","Zion","Brandon"];
+const LN=["Walker","Hayes","Coleman","Brooks","Mitchell","Sanders","Powell","Griffin","Henderson","Bryant","Jenkins","Foster","Simmons","Barnes","Fields","Okafor","Diallo","Traore","Mensah","Adeyemi","Petrovic","Jovanovic","Kovac","Novak","Horvat","Silva","Costa","Ferreira","Moreau","Laurent","Keller","Brandt","Lindqvist","Nakamura","Tanaka","Park","Reyes","Morales","Delgado","Navarro","Castillo","Ortega","Rhodes","Whitfield","Garrison","Pruitt","Banks","Holloway","Sutton","Mercer","Dawson","Ellison","Maddox","Calloway","Okonkwo","Bello","Haddad","Karimi","Volkov","Santos"];
+const POS5=["PG","SG","SF","PF","C"];
+const rndName=used=>{let n;do{n=FN[Math.floor(Math.random()*FN.length)]+" "+LN[Math.floor(Math.random()*LN.length)]}while(used.has(n));used.add(n);return n};
+const leagueNames=()=>new Set(S.teams.flatMap(t=>t.pl.map(p=>p.n)).concat(S.fa.map(p=>p.n)));
+
+/* ---------- All-Star ---------- */
+const ASDAY=()=>Math.floor(SCH.days.length*.55);
+const asOpen=()=>seasonOver()||S.day>=ASDAY();
+const ASDEF=()=>({t:null,d:null,g:null,E:{}});
+const asEnt=k=>((S.as.E||{})[S.me]||{})[k]||"";
+const elig=(p,k)=>k==="t"?(p.p!=="C"&&p.p!=="PF"):(p.p!=="C"&&p.a<=28);
+function baseSc(p,k){
+  if(k==="t")return p.o*.6+p.t*.1+({SG:8,PG:6,SF:4}[p.p]||0);
+  return (p.o+p.t)/2+({SF:4,SG:3,PF:2,PG:-1}[p.p]||0)-(p.a-22)*.6;
+}
+function asPick(c){
+  const L=[];
+  for(let k=c*15;k<c*15+15;k++)S.teams[k].pl.forEach(p=>{if(!p.i)L.push({p,t:k,sc:p.o*.55+ppgOf(p)*1.4})});
+  return L.sort((a,b)=>b.sc-a.sc).slice(0,12);
+}
+function asSim(){
+  const E=asPick(0),Wt=asPick(1),avg=a=>a.reduce((s,x)=>s+x.p.o,0)/a.length;
+  const tot=clamp(Math.round(340+gauss()*14),300,380),m=(avg(E)-avg(Wt))*1.6+gauss()*8;
+  let e=Math.round((tot+m)/2),w=tot-e;if(e===w)e++;
+  const mk=(L,pts)=>{const P=allocate(pts,L.map(x=>Math.pow(Math.max(x.p.o-40,1),2)));return L.map((x,k)=>({n:x.p.n,t:x.t,pt:P[k]}))};
+  const re=mk(E,e),rw=mk(Wt,w),win=(e>w?re:rw).slice().sort((a,b)=>b.pt-a.pt)[0];
+  S.as.g={e,w,E:re,W:rw,mvp:[win.n,win.t,win.pt]};
+}
+function contestSim(k){
+  const E=S.as.E||{},all=[];
+  S.teams.forEach((t,ti)=>t.pl.forEach(p=>{
+    if(p.i)return;
+    const mine=(E[ti]||{})[k]===p.n;
+    if(elig(p,k)||mine){const b=baseSc(p,k);all.push({p,t:ti,b,z:b+gauss()*4,mine})}
+  }));
+  const ent=all.filter(x=>x.mine),rest=all.filter(x=>!x.mine).sort((a,b)=>b.z-a.z).slice(0,8-ent.length);
+  const f=k==="t"?b=>clamp(Math.round(13+(b-62)*.38+gauss()*2.8),6,30):b=>clamp(Math.round(78+(b-70)*.45+gauss()*3.5),66,100);
+  const rows=ent.concat(rest).map(x=>({n:x.p.n,t:x.t,b:x.b,r1:f(x.b),f:null,w:0}));
+  const fin=rows.slice().sort((a,b)=>b.r1-a.r1).slice(0,3);
+  fin.forEach(r=>{r.f=f(r.b)});
+  const win=fin.slice().sort((a,b)=>b.f-a.f||b.r1-a.r1)[0];win.w=1;
+  rows.sort((a,b)=>((b.f!==null)-(a.f!==null))||((b.f||0)-(a.f||0))||(b.r1-a.r1));
+  rows.forEach(r=>{delete r.b});
+  S.as[k]={rows,win:win.n,wt:win.t};
+}
+
+/* ---------- MVP, progresión y plantillas ---------- */
+function seasonMvp(){
+  let best=null;
+  S.teams.forEach((t,ti)=>t.pl.forEach(p=>{if(p.s[0]<40)return;const sc=ppgOf(p)+p.o*.35+pct(t)*22;if(!best||sc>best.sc)best={sc,n:p.n,t:ti}}));
+  S.mvp=best?[best.n,best.t]:null;
+}
+function progress(p){
+  p.a++;const a=p.a,o0=p.o;
+  const base=a<=20?2.2:a<=21?1.8:a<=22?1.4:a<=23?1.0:a<=24?.6:a<=25?.2:a<=27?-.3:a<=28?-.6:a<=29?-1.1:a<=30?-1.7:a<=31?-2.3:a<=33?-3:-3.9;
+  const d=a<=25?base+(p.t-p.o)*.1+gauss()*1.8:base+gauss()*1.5;
+  p.o=clamp(Math.round(p.o+d),45,99);
+  p.t=a<=26?clamp(Math.max(p.o,Math.round(p.t+gauss()*1.5-.8)),45,99):p.o;
+  p.i=0;delete p.m;if(p.rk!==undefined&&p.rk<=S.season)delete p.rk;delete p.ps;p.s=[0,0,0,0];p.dl=p.o-o0;
+  return p.o-o0;
+}
+const retire=p=>(p.a>=37&&p.o<72)||p.a>=39;
+function trimTeam(i){const t=S.teams[i];while(t.pl.length>15){let w=0;t.pl.forEach((p,k)=>{if(pval(p)<pval(t.pl[w]))w=k});S.fa.push(t.pl.splice(w,1)[0])}}
+function capFA(){S.fa.sort((a,b)=>pval(b)-pval(a));S.fa.length=Math.min(S.fa.length,60)}
+function filler(){
+  const o=50+Math.floor(Math.random()*8);
+  return {n:rndName(leagueNames()),p:POS5[Math.floor(Math.random()*5)],a:22+Math.floor(Math.random()*5),o,t:o+2,i:0,s:[0,0,0,0]};
+}
+function signBest(t,cheap){
+  let b=-1;S.fa.forEach((p,k)=>{if(cheap&&faAsk(p)>2)return;if(b<0||pval(p)>pval(S.fa[b]))b=k});
+  const p=b>=0?S.fa.splice(b,1)[0]:filler();
+  p.c=faAsk(p);p.y=yearsFor(p);t.pl.push(p);
+}
+function cutPlayer(i){
+  const t=S.teams[S.me];if(t.pl.length<=12||!t.pl[i])return;
+  const p=t.pl.splice(i,1)[0];delete p.m;delete p.rk;S.fa.push(p);capFA();queueSave();render();
+}
+function signFA(i){
+  const t=S.teams[S.me],p=S.fa[i];if(!p||cnt(t)>=15)return;
+  const ask=faAsk(p);if(payroll(t)+ask>CAP&&ask>2)return;
+  S.fa.splice(i,1);p.c=ask;p.y=yearsFor(p);if(t.man)p.m=0;t.pl.push(p);queueSave();render();
+}
+
+/* ---------- draft ---------- */
+function genClass(){
+  const used=leagueNames(),out=[];
+  for(let r=0;r<72;r++){
+    const pt=clamp(Math.round(86-r*.5+gauss()*3),50,90),o=clamp(Math.round(49+(pt-58)*.7+gauss()*2.5),45,74);
+    out.push({n:rndName(used),p:POS5[Math.floor(Math.random()*5)],a:pt>=78?(Math.random()<.65?19:20):19+Math.floor(Math.random()*4),o:Math.min(o,pt),t:pt});
+  }
+  return out.sort((x,y)=>(y.t*.6+y.o*.4)-(x.t*.6+x.o*.4));
+}
+function startDraft(){
+  if(S.dr||!S.po||S.po.st!=="done")return;
+  const po=S.po,inPO=new Set(po.rounds[0].flatMap(s=>s.t)),won=new Map();
+  po.rounds.forEach(rd=>rd.forEach(s=>{if(s.win>=0){const w=s.t[s.win];won.set(w,(won.get(w)||0)+1)}}));
+  const rec=i=>pct(S.teams[i]),dif=i=>S.teams[i].pf-S.teams[i].pa;
+  const lot=Array.from({length:30},(_,i)=>i).filter(i=>!inPO.has(i)).sort((a,b)=>rec(a)-rec(b)||dif(a)-dif(b));
+  const pl=Array.from(inPO).sort((a,b)=>(won.get(a)||0)-(won.get(b)||0)||rec(a)-rec(b));
+  const base=lot.concat(pl),wts=[140,140,140,125,105,90,75,60,45,30,20,15,10,5],pool=lot.map((t,i)=>({t,w:wts[i]||5})),top=[];
+  for(let k=0;k<4&&pool.length;k++){
+    const tot=pool.reduce((s,x)=>s+x.w,0);let r=Math.random()*tot,j=0;
+    while(j<pool.length-1&&r>=pool[j].w){r-=pool[j].w;j++}
+    top.push(pool[j].t);pool.splice(j,1);
+  }
+  const r1=top.concat(base.filter(t=>!top.includes(t)));
+  const orig=r1.concat(base),hold=(t,r)=>{const k=S.pk.find(x=>x[0]===S.season&&x[1]===r&&x[2]===t);return k?k[3]:t};
+  S.dr={pool:genClass(),orig,order:orig.map((t,k)=>hold(t,k<30?1:2)),pk:0,picks:[],tk:[],top,done:false};
+  rollContracts();
+}
+function draftTake(idx){
+  const d=S.dr,team=d.order[d.pk],p=d.pool[idx];
+  S.teams[team].pl.push({n:p.n,p:p.p,a:p.a,o:p.o,t:p.t,i:0,s:[0,0,0,0],rk:S.season+1,c:rookieC(d.pk),y:d.pk<30?3:2});
+  d.picks.push({k:d.pk,t:team,n:p.n,p:p.p,o:p.o,pt:p.t,og:d.orig?d.orig[d.pk]:team});d.tk.push(idx);d.pk++;
+  if(d.pk>=d.order.length)finishDraft();
+}
+function bestAvail(noise){
+  const d=S.dr,tk=new Set(d.tk);let best=-1,bs=-1e9;
+  d.pool.forEach((p,i)=>{if(tk.has(i))return;const s=p.t*.6+p.o*.4+(noise?gauss()*2.5:0);if(s>bs){bs=s;best=i}});
+  return best;
+}
+function finishDraft(){
+  const d=S.dr,tk=new Set(d.tk);
+  d.pool.forEach((p,i)=>{if(!tk.has(i))S.fa.push({n:p.n,p:p.p,a:p.a,o:p.o,t:p.t,i:0,s:[0,0,0,0]})});
+  S.teams.forEach((t,i)=>{if(!isHum(i))trimTeam(i)});
+  capFA();d.done=true;
+}
+function draftSim(mode){
+  const d=S.dr;if(!d||d.done)return;
+  if(mode==="best"&&d.order[d.pk]===S.me)draftTake(bestAvail(false));
+  else if(mode==="one"&&!isHum(d.order[d.pk]))draftTake(bestAvail(true));
+  else if(mode==="me"){while(!d.done&&!isHum(d.order[d.pk]))draftTake(bestAvail(true))}
+  else if(mode==="all"){while(!d.done)draftTake(bestAvail(!isHum(d.order[d.pk])))}
+  queueSave();render();
+}
+
+/* ---------- nueva temporada ---------- */
+function newSeason(){
+  if(!S.dr||!S.dr.done)return;
+  const bad=S.hum.find(h=>cnt(S.teams[h])>15);if(bad!==undefined){tmsg=`${TEAMS[bad][0]} tiene más de 15 jugadores: hay que cortar antes de empezar.`;render();return}
+  const po=S.po,st=poStatus(),me=S.teams[S.me];
+  S.hist.push({y:seasonLabel(),ch:po.champ,rec:[me.w,me.l],res:st.t,hm:S.hum.map(h=>{const m0=S.me;S.me=h;const s=poStatus();S.me=m0;return {t:h,rec:[S.teams[h].w,S.teams[h].l],res:s.t}}),mvp:S.mvp?S.mvp[0]:"",pr:awNames(),aw:[S.as.t?S.as.t.win:"",S.as.d?S.as.d.win:"",S.as.g?S.as.g.mvp[0]:""]});
+  S.rcp={};S.hum.forEach(h=>{S.rcp[h]={r:[],t:[]}});
+  S.hum.forEach(h=>{const tm=S.teams[h];tm.pl=tm.pl.filter(p=>{if(p.y>0)return true;S.fa.push(p);return false})});
+  S.teams.forEach((t,ti)=>{
+    const keep=[];
+    t.pl.forEach(p=>{const d=progress(p);if(retire(p)){if(isHum(ti))S.rcp[ti].t.push(p.n)}else{keep.push(p);if(isHum(ti))S.rcp[ti].r.push({n:p.n,d,a:p.a,o:p.o})}});
+    t.pl=keep;t.w=0;t.l=0;t.pf=0;t.pa=0;
+  });
+  S.fa.forEach(progress);S.fa=S.fa.filter(p=>!retire(p)&&p.o>=48);
+  aiFA();
+  S.teams.forEach((t,i)=>{if(!isHum(i))trimTeam(i);while(t.pl.length<13)signBest(t,isHum(i))});
+  capFA();
+  S.season++;S.seed=(Math.random()*2147483647)|0;S.day=0;S.ld=0;S.R=new Array(1230).fill(0);S.log=[];S.news=[];S.last=[];S.dets={};
+  S.po=null;S.dr=null;S.as=ASDEF();S.mvp=null;S.aw=null;S.teams.forEach(x=>{x.man=false});S.trades=[];S.rdy={};S.props=[];S.pend={};refreshPicks();
+  setupSchedule();view="inicio";tt=-1;gs.clear();rs.clear();gp.clear();rp.clear();tmsg="";viewTeam=S.me;
+  queueSave();render();window.scrollTo(0,0);
+}
+function startNewSeasonLabel(){return (2027+S.season)+"-"+String(28+S.season).slice(-2)}
+
+/* ---------- vistas de fase 3 ---------- */
+function mvpRow(){return S.mvp?`<div class="row"><span>MVP de la temporada:</span><b>${esc(S.mvp[0])}</b> ${tb(S.mvp[1])}</div>`:""}
+function cutCard(){
+  const t=S.teams[S.me],eff=cnt(t),over=eff-15;
+  const rows=t.pl.map((p,i)=>({p,i})).sort((a,b)=>b.p.o-a.p.o).map(({p,i})=>`<div class="row"><span class="grow">${esc(p.n)} <span class="muted">${p.p} · ${p.a} años · ${p.o}/${p.t}${p.y>0?` · ${(p.c||0).toFixed(1)} M`:""}</span>${p.rk?` <span class="warn">novato</span>`:""}${p.y<=0?` <span class="warn">vence</span>`:""}</span><button class="btn sm danger" data-act="cut" data-i="${i}"${t.pl.length<=12?" disabled":""}>Cortar</button></div>`).join("");
+  return `<div class="card"><h3>Recortes de plantilla · ${eff}/15</h3>${over>0?`<p class="warn"><b>Tienes ${over} jugador${over>1?"es":""} de más.</b> Corta antes de empezar la temporada.</p>`:`<p class="muted">Puedes cortar jugadores (mínimo 12). Los cortados pasan a agentes libres y dejan de cobrar.</p>`}<div class="list">${rows}</div></div>`;
+}
+function faCard(){
+  if(!S.fa.length)return "";
+  const t=S.teams[S.me],pay=payroll(t),full=cnt(t)>=15;
+  const rows=S.fa.map((p,i)=>({p,i})).sort((a,b)=>pval(b.p)-pval(a.p)).slice(0,14).map(({p,i})=>{const ask=faAsk(p),ok=pay+ask<=CAP||ask<=2;return `<div class="row"><span class="grow">${esc(p.n)} <span class="muted">${p.p} · ${p.a} años</span></span><b class="ovr">${p.o}</b><span class="muted num">/${p.t}</span><span class="num" style="min-width:92px;text-align:right">${ask.toFixed(1)} M · ${yearsFor(p)}a</span><button class="btn sm" data-act="sign" data-i="${i}"${full||!ok?" disabled":""}>Fichar</button></div>`}).join("");
+  return `<div class="card"><h3>Agentes libres (${S.fa.length})</h3><p class="note">Masa salarial ${pay.toFixed(1)} M, tope ${CAP} M, espacio ${Math.max(0,CAP-pay).toFixed(1)} M. Por encima del tope solo puedes fichar contratos de hasta 2 M.</p>${full?`<p class="note">Plantilla completa (15). Corta a alguien para fichar.</p>`:""}<div class="list">${rows}</div></div>`;
+}
+function recapCard(){
+  const RC=(S.rcp&&S.rcp[S.me])||{r:[],t:[]};
+  if(S.day>0||!RC.r.length)return "";
+  const r=RC.r.slice().sort((a,b)=>b.d-a.d);
+  const row=x=>`<div class="row"><span class="grow">${esc(x.n)} <span class="muted">${x.a} años</span></span><b class="ovr">${x.o}</b><b class="num ${x.d>0?"good":x.d<0?"bad":"muted"}">${x.d>0?"+":""}${x.d}</b></div>`;
+  const body=r.length<=6?r.map(row).join(""):r.slice(0,3).map(row).join("")+`<div class="note" style="padding:4px 0">…</div>`+r.slice(-3).map(row).join("");
+  return `<div class="card"><h3>Progresión de tu plantilla</h3><div class="list">${body}</div>${RC.t.length?`<p class="note">Se retiran: ${esc(RC.t.join(", "))}.</p>`:""}</div>`;
+}
+function histCard(){
+  if(!S.hist||!S.hist.length)return "";
+  const hx=h=>(h.hm||[]).find(z=>z.t===S.me)||h;
+  const rows=S.hist.slice().reverse().map(h=>`<div class="row"><span class="muted" style="min-width:62px">${h.y}</span>${tb(h.ch)}<span class="grow">${esc(hx(h).res)} · ${hx(h).rec[0]}–${hx(h).rec[1]}${h.mvp?` · MVP ${esc(h.mvp)}`:""}${h.aw&&h.aw[1]?` · Mates ${esc(h.aw[1])}`:""}${h.aw&&h.aw[0]?` · Triples ${esc(h.aw[0])}`:""}</span></div>`).join("");
+  return `<div class="card full"><h3>Temporadas anteriores</h3><div class="list">${rows}</div></div>`;
+}
+function vDraft(){
+  const po=S.po;
+  if(!(po&&po.st==="done"))return `<div class="card"><h2>Draft</h2><p class="muted" style="max-width:70ch">Se celebra al terminar los playoffs. Cada equipo elige dos jugadores de una clase de 72 aspirantes. El orden de la primera ronda sale de un sorteo entre los 14 equipos que no jugaron playoffs; los demás eligen por orden inverso de éxito. Los no elegidos pasan a agentes libres.</p></div>`;
+  if(!S.dr)return `<div class="card"><h2>Draft de ${2027+S.season}</h2><p class="muted">Ha terminado la temporada ${seasonLabel()}. Haz el sorteo para conocer el orden de elección.</p><div class="btns"><button class="btn pri" data-act="startdraft">Hacer el sorteo</button></div></div>`;
+  const d=S.dr,done=!!d.done,cur=done?-1:d.order[d.pk],mine=cur===S.me,taken=new Set(d.tk);
+  const lot=`<p class="muted">Sorteo: ${d.top.map((t,k)=>`${k+1}º ${tb(t)}`).join(" ")}</p>`;
+  const curH=!done&&isHum(cur);
+  const btns=done?"":`<div class="btns">${mine?`<button class="btn pri" data-act="dsim" data-m="best">Elegir al mejor disponible</button>`:(curH?`<span class="muted">Esperando la elección de ${esc((S.owners&&S.owners[cur]&&S.owners[cur].n)||TEAMS[cur][0])}…</span>`:`<button class="btn pri" data-act="dsim" data-m="me">Simular hasta la siguiente elección humana</button><button class="btn" data-act="dsim" data-m="one">Simular un pick</button>`)}${(!LG||S.com===MYID)?`<button class="btn" data-act="dsim" data-m="all">Simular todo el draft</button>`:""}</div>`;
+  const head=done?`<h2>Draft terminado</h2>`:`<div class="next"><h2>Ronda ${d.pk<30?1:2} · Pick ${d.pk<30?d.pk+1:d.pk-29}</h2>${tb(cur,"lg")}<span class="${mine?"good":"muted"}"><b>${mine?"¡Te toca elegir!":esc(TEAMS[cur][0])}</b></span></div>`;
+  const nxt=done?"":`<p class="note">Próximos: ${d.order.slice(d.pk,d.pk+8).map(t=>tb(t)).join(" ")}</p>`;
+  let pr="";
+  if(!done){
+    const rows=[];
+    d.pool.forEach((p,i)=>{if(!taken.has(i)&&rows.length<40)rows.push(`<tr><td>${esc(p.n)}</td><td>${p.p}</td><td class="r">${p.a}</td><td class="r ovr">${p.o}</td><td class="r">${p.t}</td><td class="r">${mine?`<button class="btn sm pri" data-act="draftpick" data-i="${i}">Elegir</button>`:""}</td></tr>`)});
+    pr=`<div class="card"><h3>Aspirantes disponibles</h3><div class="tw"><table><thead><tr><th>Jugador</th><th>Pos</th><th class="r">Edad</th><th class="r">OVR</th><th class="r">POT</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div></div>`;
+  }
+  const lg=d.picks.slice(-10).reverse().map(x=>`<div class="row"><span class="muted num" style="min-width:34px">#${x.k+1}</span>${tb(x.t)}<span class="grow">${esc(x.n)} <span class="muted">${x.p} · ${x.o}/${x.pt}</span>${x.og!==undefined&&x.og!==x.t?` <span class="note">(pick de ${TEAMS[x.og][1]})</span>`:""}</span></div>`).join("")||`<p class="muted">Aún no se ha elegido a nadie.</p>`;
+  const my=d.picks.filter(x=>x.t===S.me).map(x=>`<div class="row"><span class="muted num" style="min-width:34px">#${x.k+1}</span><span class="grow">${esc(x.n)} <span class="muted">${x.p} · ${x.o}/${x.pt}</span></span></div>`).join("")||`<p class="muted">Aún no has elegido a nadie. Tienes los picks ${d.order.map((t,k)=>t===S.me?"#"+(k+1):"").filter(Boolean).join(" y ")}.</p>`;
+  let end="";
+  if(done){
+    const over=S.hum.some(h=>cnt(S.teams[h])>15);
+    end=`${expCard()}${cutCard()}<div class="card"><h3>Siguiente temporada</h3><p class="muted">Al empezar, todos los jugadores cumplen un año: los jóvenes mejoran, los veteranos bajan y algunos se retiran.</p><div class="btns"><button class="btn pri" data-act="newseason"${over?" disabled":""}>Empezar temporada ${startNewSeasonLabel()}</button></div>${over?`<p class="warn">Corta jugadores hasta tener 15.</p>`:""}</div>`;
+  }
+  return `<div class="grid"><div class="card full">${head}${lot}${nxt}${btns}</div>${pr}<div class="card"><h3>Últimas elecciones</h3><div class="list">${lg}</div></div><div class="card"><h3>Tus elecciones</h3><div class="list">${my}</div></div>${done?"":expCard()}${end}</div>`;
+}
+function contestCard(k,title,desc){
+  const R=S.as[k],key=k==="t"?"et":"ed";
+  const mine=S.teams[S.me].pl.filter(p=>!p.i&&elig(p,k)).sort((a,b)=>b.o-a.o);
+  const sel=R?(asEnt(k)?`<p class="muted">Tu inscrito: <b>${esc(asEnt(k))}</b></p>`:`<p class="muted">No inscribiste a nadie.</p>`):`<div class="btns" style="align-items:center"><label class="muted" for="selAs${k}">Inscribir a</label><select id="selAs${k}" data-asel="${k}"><option value="">Nadie</option>${mine.map(p=>`<option value="${esc(p.n)}"${asEnt(k)===p.n?" selected":""}>${esc(p.n)} (${p.o})</option>`).join("")}</select></div>`;
+  const tbl=R?`<div class="tw"><table><thead><tr><th>Jugador</th><th>Equipo</th><th class="r">Ronda 1</th><th class="r">Final</th></tr></thead><tbody>${R.rows.map(r=>`<tr class="${r.t===S.me?"me":""}"><td>${esc(r.n)}${r.w?` <span class="good"><b>Ganador</b></span>`:""}</td><td>${tb(r.t)}</td><td class="r">${r.r1}</td><td class="r">${r.f===null?"–":r.f}</td></tr>`).join("")}</tbody></table></div>`:`<div class="btns"><button class="btn pri" data-act="as" data-k="${k}">Celebrar concurso</button></div>`;
+  return `<div class="card"><h3>${title}</h3><p class="muted">${desc}</p>${sel}${tbl}</div>`;
+}
+function vAllstar(){
+  if(!asOpen())return `<div class="card"><h2>Fin de semana de las estrellas</h2><p class="muted" style="max-width:70ch">Se juega a mitad de temporada, a partir del ${fmtDate(ASDAY())}. Habrá concurso de triples, concurso de mates y el partido de las estrellas, Este contra Oeste. Podrás inscribir a uno de tus jugadores en cada concurso.</p></div>`;
+  const g=S.as.g;let asg;
+  if(g){
+    const lst=(L,name,pts)=>`<div class="card"><h3>${name} · ${pts}</h3><div class="tw"><table><tbody>${L.map(x=>`<tr class="${x.t===S.me?"me":""}"><td>${esc(x.n)}</td><td>${tb(x.t)}</td><td class="r"><b>${x.pt}</b></td></tr>`).join("")}</tbody></table></div></div>`;
+    asg=`<div class="card full"><h3>Partido de las estrellas</h3><div class="next"><div class="vs">Este ${g.e} – ${g.w} Oeste</div><div class="muted">MVP: <b>${esc(g.mvp[0])}</b> ${tb(g.mvp[1])} (${g.mvp[2]} pts)</div></div></div>${lst(g.E,"Este",g.e)}${lst(g.W,"Oeste",g.w)}`;
+  }else{
+    const pv=c=>asPick(c).map((x,k)=>`<div class="row"><span class="grow">${esc(x.p.n)}${k<5?"":` <span class="muted">reserva</span>`}</span>${tb(x.t)}<b class="ovr">${x.p.o}</b></div>`).join("");
+    asg=`<div class="card full"><h3>Partido de las estrellas</h3><p class="muted">Los 12 mejores de cada conferencia por valoración y puntos. Los 5 primeros son titulares.</p><div class="btns"><button class="btn pri" data-act="as" data-k="g">Jugar el partido</button></div></div><div class="card"><h3>Este</h3><div class="list">${pv(0)}</div></div><div class="card"><h3>Oeste</h3><div class="list">${pv(1)}</div></div>`;
+  }
+  return `<div class="grid"><div class="card full"><h2>Fin de semana de las estrellas</h2><p class="muted">Los resultados no afectan al calendario ni causan lesiones.</p></div>
+    ${contestCard("t","Concurso de triples","Ocho tiradores, una primera ronda y una final de tres. Cuentan la valoración y la posición.")}${contestCard("d","Concurso de mates","Ocho jugadores de hasta 28 años, dos mates por ronda y final de tres. Cuentan la valoración, el potencial y la edad.")}${asg}</div>`;
+}
+
+/* ---------- liga compartida ---------- */
+const isHum=i=>!!(S&&S.hum&&S.hum.includes(i));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const modeBar=()=>`<div class="seg"><button data-act="mode" data-m="solo" aria-pressed="${!LG}">Partida individual</button><button data-act="mode" data-m="liga" aria-pressed="${LG}">Liga con amigos</button></div>`;
+function mgrName(){
+  const el=document.getElementById("mgrName");let v=el?el.value.trim():"";
+  try{if(v)localStorage.setItem("hardwood-name",v);else v=localStorage.getItem("hardwood-name")||""}catch(e){}
+  return v||"Mánager";
+}
+function refreshMe(){
+  const o=(S&&S.owners)||{},k=Object.keys(o).find(x=>o[x].u===MYID);
+  MYT=k===undefined?-1:+k;
+  if(MYT>=0)S.me=MYT;
+}
+function adopt(d){
+  S=JSON.parse(d.state);LGREV=d.rev||0;
+  migrate();refreshMe();setupSchedule();
+  if(MYT>=0&&(viewTeam===undefined||viewTeam<0))viewTeam=MYT;
+}
+async function commit(fn,quiet){
+  if(!LG){INTX=true;try{fn()}finally{INTX=false}queueSave();return}
+  if(cbusy){if(quiet){setTimeout(()=>commit(fn,quiet),400)}else{tmsg="La liga está procesando otra acción; vuelve a intentarlo.";render()}return}
+  cbusy=true;
+  try{
+    let got=false;
+    for(let k=0;k<14&&!got;k++){
+      const r=await LKD.acquire({holder:HOLD,ttlMs:1500});got=!!r.acquired;
+      if(!got)await sleep(300+Math.random()*300);
+    }
+    if(!got){tmsg="La liga está ocupada; inténtalo otra vez.";return}
+    const snap=await LGD.get();
+    if(snap.exists)adopt(snap.data());
+    INTX=true;try{fn()}finally{INTX=false}
+    await LGD.set({v:1,rev:LGREV+1,state:JSON.stringify(S),at:Date.now()});
+    LGREV++;saveState="ok";
+  }catch(e){saveState=(e&&e.code==="invalid_argument")?"ro":"err";tmsg="No se pudo guardar el cambio en la liga."}
+  finally{cbusy=false}
+  if(!quiet)render();else paintSave();
+}
+function syncMine(){
+  clearTimeout(mtimer);
+  mtimer=setTimeout(()=>{
+    if(!LG||MYT<0||!S)return;
+    const t=S.teams[S.me],man=!!t.man,mm=t.pl.map(p=>[p.n,p.m]);
+    commit(()=>{
+      const t2=S.teams[S.me];t2.pl.forEach(p=>{delete p.m});t2.man=man;
+      if(man){const m=new Map(mm);t2.pl.forEach(p=>{if(m.get(p.n)!==undefined)p.m=m.get(p.n)})}
+    },true);
+  },700);
+}
+function subscribe(){
+  if(unsub){try{unsub()}catch(e){}}
+  unsub=LGD.onSnapshot(s=>{
+    if(!s.exists||cbusy)return;
+    const ae=document.activeElement;if(ae&&ae.classList&&ae.classList.contains("mrange"))return;
+    const d=s.data();if(d&&d.rev>LGREV){adopt(d);render()}
+  },()=>{});
+}
+async function loadLeague(){
+  S=null;lgErr="";MYT=-1;
+  if(!LGD){lgErr="La liga con amigos necesita que abras esta página con tu cuenta.";return}
+  try{
+    const snap=await LGD.get();
+    if(snap.exists){adopt(snap.data());if(MYT>=0){view="inicio";viewTeam=MYT}saveState="ok";subscribe()}
+  }catch(e){lgErr="No se pudo leer la liga."}
+}
+async function loadSolo(){
+  S=null;
+  try{if(dbDoc){const snap=await dbDoc.get();if(snap.exists){const d=snap.data();if(d&&d.state)S=JSON.parse(d.state)}}}catch(e){}
+  if(!S&&!dbDoc){try{const r=localStorage.getItem(LS);if(r)S=JSON.parse(r)}catch(e){}}
+  if(S){try{migrate();setupSchedule();viewTeam=S.me;saveState=dbDoc?"ok":"local";if(seasonOver()&&!S.po)initPO()}catch(e){S=null}}
+}
+async function setMode(m){
+  if((m==="liga")===LG)return;
+  if(!LG&&S){clearTimeout(saveTimer);dirty=true;let g=0;while(saving&&g++<50)await sleep(100);await flush()}
+  if(unsub){try{unsub()}catch(e){}unsub=null}
+  try{localStorage.setItem("hardwood-mode",m)}catch(e){}
+  LG=m==="liga";tmsg="";
+  if(LG)await loadLeague();else await loadSolo();
+  render();
+}
+async function createLeague(i){
+  try{
+    const ex=await LGD.get();if(ex.exists){await loadLeague();render();return}
+    const st=mkState(i);st.owners={[i]:{u:MYID,n:mgrName()}};st.com=MYID;
+    const d={v:1,rev:1,state:JSON.stringify(st),at:Date.now()};
+    await LGD.set(d);adopt(d);view="inicio";viewTeam=i;saveState="ok";subscribe();
+  }catch(e){lgErr=(e&&e.code==="invalid_argument")?"No tienes permiso para escribir en la liga: pide al dueño de esta página que te invite como colaborador (editor).":"No se pudo crear la liga."}
+  render();
+}
+async function claimTeam(i){
+  const nm=mgrName();
+  await commit(()=>{
+    S.owners=S.owners||{};const o=S.owners[i];
+    if(o&&o.u!==MYID){tmsg="Ese equipo ya tiene mánager.";return}
+    if(Object.values(S.owners).some(x=>x.u===MYID)){tmsg="Ya diriges un equipo en esta liga.";return}
+    S.owners[i]={u:MYID,n:nm};S.hum=Object.keys(S.owners).map(Number).sort((a,b)=>a-b);
+  });
+  if(saveState!=="ok"){const ro=saveState==="ro";await loadLeague();if(ro)lgErr="No tienes permiso para escribir en la liga: pide al dueño de esta página que te invite como colaborador (editor).";render();return}
+  refreshMe();
+  if(MYT>=0){view="inicio";viewTeam=MYT;setupSchedule();subscribe()}
+  render();
+}
+/* avance con «listo» */
+function go(kind,m,force){
+  const run=mm=>kind==="rs"?simulate(mm):simPO(mm);
+  const ord=kind==="rs"?["day","pre","next","week","season"]:["day","round","end"];
+  if(S.hum.length<2||force){const mm=m||"day";run(mm);S.rdy={};S.pend={};return}
+  Object.keys(S.rdy).forEach(h=>{if(!S.rdy[h].startsWith(kind+":"))delete S.rdy[h]});
+  if(m)S.rdy[S.me]=kind+":"+m;
+  if(S.hum.every(h=>S.rdy[h]||(S.pend&&S.pend[h]))){
+    const ms=S.hum.filter(h=>S.rdy[h]).map(h=>Math.max(0,ord.indexOf(S.rdy[h].split(":")[1])));
+    const mm=ord[ms.length?Math.min(...ms):0];
+    run(mm);S.rdy={};S.pend={};
+  }else{tmsg="Marcado como listo. La liga avanzará cuando todos lo estén.";queueSave();render()}
+}
+async function startLive(kind){
+  const g=curGame(kind);
+  if(g){
+    const opp=g[0]===S.me?g[1]:g[0];
+    if(isHum(opp)){tmsg="Tu rival lo dirige otro mánager: este partido se simula con «Listo».";render();return}
+    if(S.pend&&S.pend[S.me]){tmsg="Ya has jugado este partido; esperando a los demás mánagers.";render();return}
+    openInteractive(kind,g);return;
+  }
+  if(kind==="po"){tmsg="Tu equipo no tiene partido ahora mismo en los playoffs.";render();return}
+  wantLive=true;wantKind=kind;
+  await commit(()=>go("rs","pre"));
+  if(!(S&&S.rdy&&S.rdy[S.me]))wantLive=false;
+}
+function rdyLab(kind,m,txt){
+  if(!S.hum||S.hum.length<2)return txt;
+  return (S.rdy&&S.rdy[S.me]===kind+":"+m?"✔ Listo · ":"Listo: ")+txt.charAt(0).toLowerCase()+txt.slice(1);
+}
+function simBtns(){
+  const mu=S.hum.length>1;
+  return `<div class="btns"><button class="btn pri" data-act="live">▶ ${mu?"Listo: jugar mi partido en directo":"Jugar mi partido en directo"}</button><button class="btn" data-act="sim" data-m="next">${rdyLab("rs","next","Simular hasta mi partido")}</button><button class="btn" data-act="sim" data-m="day">${rdyLab("rs","day","1 día")}</button><button class="btn" data-act="sim" data-m="week">${rdyLab("rs","week","1 semana")}</button><button class="btn" data-act="sim" data-m="season">${rdyLab("rs","season","Hasta final de temporada")}</button></div>`;
+}
+function poBtns(){
+  const mu=S.hum.length>1;
+  return `<div class="btns"><button class="btn pri" data-act="livepo">▶ ${mu?"Listo: siguiente partido en directo":"Siguiente partido en directo"}</button><button class="btn" data-act="po" data-m="day">${rdyLab("po","day","Simular 1 día")}</button><button class="btn" data-act="po" data-m="round">${rdyLab("po","round","Simular la ronda")}</button><button class="btn" data-act="po" data-m="end">${rdyLab("po","end","Hasta el final")}</button></div>`;
+}
+function lgCard(){
+  if(!LG)return "";
+  const com=S.com===MYID,over=seasonOver();
+  const rows=S.hum.map(h=>{const o=(S.owners&&S.owners[h])||{},r=S.rdy&&S.rdy[h];
+    return `<div class="row">${tb(h)}<span class="grow">${esc(o.n||"Mánager")}${h===S.me?" (tú)":""} <span class="muted">${esc(TEAMS[h][0])}</span></span>${r?`<span class="good">✔ listo</span>`:`<span class="muted">esperando</span>`}${com&&h!==S.me?`<button class="btn sm" data-act="free" data-i="${h}">Liberar</button>`:""}</div>`}).join("");
+  const frc=com?`<div class="btns"><span class="note">Comisionado:</span>${over?`<button class="btn sm" data-act="po" data-m="day" data-f="1">Forzar 1 día</button>`:`<button class="btn sm" data-act="sim" data-m="day" data-f="1">Forzar 1 día</button><button class="btn sm" data-act="sim" data-m="week" data-f="1">Forzar 1 semana</button>`}</div>`:"";
+  return `<div class="card"><h3>Liga con amigos · ${S.hum.length} mánager${S.hum.length>1?"s":""}</h3><div class="list">${rows}</div><p class="note">La liga avanza cuando todos los mánagers pulsan «Listo»; si piden cosas distintas, se hace lo más corto. «Hasta mi partido» avanza hasta el siguiente partido de cualquier mánager. Los otros ${30-S.hum.length} equipos los lleva el ordenador.</p>${frc}</div>`;
+}
+function propCard(){
+  const P=S.props||[];if(!P.length)return "";
+  const nm=(a,b)=>a.concat(b.map(k=>pickLabel([k[0],k[1],k[2],0]))).join(", ")||"nada";
+  const rows=P.filter(p=>p.to===S.me||p.from===S.me).map(p=>{
+    const inc=p.to===S.me;
+    return `<div class="row">${tb(inc?p.from:p.to)}<span class="grow">${inc?`${esc(TEAMS[p.from][0])} ofrece <b>${esc(nm(p.give,p.gpk))}</b> a cambio de <b>${esc(nm(p.get,p.rpk))}</b>`:`Ofreces <b>${esc(nm(p.give,p.gpk))}</b> por <b>${esc(nm(p.get,p.rpk))}</b> a ${esc(TEAMS[p.to][0])}`}</span>${inc?`<button class="btn sm pri" data-act="prop" data-v="acc" data-id="${p.id}">Aceptar</button><button class="btn sm" data-act="prop" data-v="rej" data-id="${p.id}">Rechazar</button>`:`<button class="btn sm" data-act="prop" data-v="rej" data-id="${p.id}">Retirar</button>`}</div>`}).join("");
+  return rows?`<div class="card" style="margin-top:8px"><h3>Propuestas entre mánagers</h3><div class="list">${rows}</div></div>`:"";
+}
+function vLeague(){
+  const intro=`<div class="hero"><h1>Liga con amigos</h1><p class="muted">Todos juegan en la misma liga, cada uno con un equipo distinto. Los demás equipos los controla el ordenador. Quien crea la liga es el comisionado. Tus amigos pueden jugar si el dueño de esta página los invita por correo como colaboradores.</p></div>`;
+  if(!LGD)return modeBar()+intro+`<p class="warn">${esc(lgErr||"No disponible.")}</p>`;
+  const owners=(S&&S.owners)||{};
+  const card=i=>{
+    const pl=DATA[TEAMS[i][0]].slice().sort((a,b)=>b.ovr-a.ovr),s=ovrStr(pl.map(p=>p.ovr)),o=owners[i];
+    return o?`<div class="pick" style="opacity:.7">${tb(i,"lg")}<div><div class="n">${esc(TEAMS[i][0])}</div><div class="m">Mánager: ${esc(o.n)}</div></div></div>`
+      :`<button class="pick" data-act="${S?"claim":"mkleague"}" data-i="${i}">${tb(i,"lg")}<div><div class="n">${esc(TEAMS[i][0])}</div><div class="m">Fuerza ${s.toFixed(1)} · ${S?"libre":"crear liga con este equipo"}</div></div></button>`;
+  };
+  const conf=c=>`<div class="card"><h2>${CONFS[c]}</h2><div class="picker">${Array.from({length:15},(_,k)=>card(c*15+k)).join("")}</div></div>`;
+  return modeBar()+intro+`<div class="card"><label class="muted" for="mgrName">Tu nombre de mánager</label><input id="mgrName" maxlength="20" value="${esc((()=>{try{return localStorage.getItem("hardwood-name")||""}catch(e){return ""}})())}" placeholder="Tu nombre"><p class="muted">${S?`Liga creada: elige un equipo libre para unirte.`:`Aún no hay liga: elige tu equipo para crearla.`}</p>${lgErr?`<p class="warn">${esc(lgErr)}</p>`:""}${tmsg?`<p class="warn">${esc(tmsg)}</p>`:""}<div class="btns"><button class="btn sm" data-act="lgrefresh">Actualizar</button></div></div>${conf(0)}${conf(1)}`;
+}
+
+/* ---------- partido en directo ---------- */
+function rngOf(str){let h=2166136261;for(let i=0;i<str.length;i++)h=Math.imul(h^str.charCodeAt(i),16777619);return()=>{h+=0x6D2B79F5;let t=Math.imul(h^h>>>15,1|h);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function buildTimeline(det){
+  const rnd=rngOf(det.k+"|"+det.ph+"-"+det.pa),ev=[];
+  const side=(box,sd)=>{
+    const wa=box.map(b=>b[4]+.4);
+    box.forEach((b,bi)=>{
+      let left=b[1];
+      while(left>0){
+        const r=rnd();let v=left>=3&&r<.24?3:(left>=2&&r<.86?2:1);
+        let a=null;
+        if(v>=2&&rnd()<.55){let tot=0;wa.forEach((w,k)=>{if(k!==bi)tot+=w});let x=rnd()*tot;for(let k=0;k<box.length;k++){if(k===bi)continue;x-=wa[k];if(x<=0){a=box[k][0];break}}}
+        ev.push({t:Math.floor(rnd()*2879)+1,s:sd,n:b[0],v,a});left-=v;
+      }
+    });
+  };
+  side(det.hb,0);side(det.ab,1);
+  ev.sort((x,y)=>x.t-y.t);
+  [720,1440,2160,2880].forEach((q,k)=>ev.push({t:q,q:k+1}));
+  ev.sort((x,y)=>x.t-y.t||(x.q?1:0)-(y.q?1:0));
+  return ev;
+}
+const LVT2=["anota bajo el aro","clava un tiro de media distancia","entra a canasta","machaca","anota con un tiro flotado","anota tras robo"];
+function evText(e){
+  if(e.v===3)return `${e.n} mete un triple`+(e.a?` (asiste ${e.a})`:"");
+  if(e.v===1)return `${e.n} anota un tiro libre`;
+  const r=(e.t*7+e.n.length)%LVT2.length;
+  return `${e.n} ${LVT2[r]}`+(e.a?` (asiste ${e.a})`:"");
+}
+function openLive(det){
+  closeLive();
+  LV={det,ev:buildTimeline(det),i:0,gt:0,sp:1,paused:false,done:false,last:performance.now(),sh:0,sa:0,qs:[],feed:[],pts:{}};
+  let el=document.getElementById("live");
+  if(!el){el=document.createElement("div");el.id="live";el.className="live";document.body.appendChild(el);
+    el.addEventListener("click",e=>{const b=e.target.closest("[data-lv]");if(!b||!LV)return;const a=b.dataset.lv;
+      if(a==="close")closeLive();else if(a==="pause")LV.paused=!LV.paused;else if(a==="skip"){LV.gt=2880;LV.skip=true}else LV.sp=+a;paintLive(true)})}
+  paintLive(true);requestAnimationFrame(lvTick);
+}
+function closeLive(){LV=null;GM=null;const el=document.getElementById("live");if(el)el.remove()}
+function applyEv(e){
+  const d=LV.det;
+  if(e.q){LV.qs.push([LV.sh,LV.sa]);LV.feed.unshift(`<div class="q">Final del ${e.q}º cuarto · ${esc(TEAMS[d.h][1])} ${LV.sh}–${LV.sa} ${esc(TEAMS[d.a][1])}</div>`)}
+  else{
+    if(e.s===0)LV.sh+=e.v;else LV.sa+=e.v;
+    LV.pts[e.n]=(LV.pts[e.n]||0)+e.v;
+    LV.feed.unshift(`<div><span class="muted num">${fmtClock(e.t)}</span> ${tb(e.s===0?d.h:d.a)} ${esc(evText(e))} <b class="num">${LV.sh}–${LV.sa}</b></div>`);
+  }
+  if(LV.feed.length>14)LV.feed.length=14;
+}
+function fmtClock(gt){const q=Math.min(4,Math.floor(gt/720)+1),rem=Math.max(0,Math.ceil(q*720-gt-(gt>=2880?0:0)));const r=gt>=2880?0:720-(gt%720);return `${q}ºC ${String(Math.floor(r/60)).padStart(2,"0")}:${String(Math.floor(r%60)).padStart(2,"0")}`}
+function lvTick(now){
+  if(!LV)return;
+  const dt=Math.min(.25,(now-LV.last)/1000);LV.last=now;
+  if(!LV.paused&&!LV.done){
+    LV.gt=Math.min(2880,LV.gt+dt*LV.sp*2880/110);
+    let ch=false;
+    while(LV.i<LV.ev.length&&LV.ev[LV.i].t<=LV.gt){applyEv(LV.ev[LV.i++]);ch=true}
+    if(LV.gt>=2880){while(LV.i<LV.ev.length)applyEv(LV.ev[LV.i++]);LV.done=true;ch=true}
+    paintLive(ch);
+  }
+  requestAnimationFrame(lvTick);
+}
+function paintLive(full){
+  const el=document.getElementById("live");if(!el||!LV)return;
+  const d=LV.det;
+  if(full||!document.getElementById("lvclk")){
+    const top=(box,n)=>box.slice().sort((a,b)=>(LV.pts[b[0]]||0)-(LV.pts[a[0]]||0)).slice(0,n);
+    let side="";
+    if(LV.done){
+      const tbl=(box,tm)=>`<h4>${esc(TEAMS[tm][0])}</h4><div class="tw"><table><thead><tr><th>Jugador</th><th class="r">Min</th><th class="r">Pts</th><th class="r">Reb</th><th class="r">Ast</th></tr></thead><tbody>${box.slice().sort((a,b)=>b[1]-a[1]).map(b=>`<tr><td>${esc(b[0])}</td><td class="r">${b[2]}</td><td class="r"><b>${b[1]}</b></td><td class="r">${b[3]}</td><td class="r">${b[4]}</td></tr>`).join("")}</tbody></table></div>`;
+      side=tbl(d.hb,d.h)+tbl(d.ab,d.a);
+    }else{
+      const L=(box,tm)=>`<h4>${esc(TEAMS[tm][0])}</h4>${top(box,4).map(b=>`<div class="row"><span class="grow">${esc(b[0])}</span><b class="num">${LV.pts[b[0]]||0}</b></div>`).join("")}`;
+      side=L(d.hb,d.h)+L(d.ab,d.a);
+    }
+    const qs=LV.qs.length?`<div class="muted num">${LV.qs.map((q,k)=>`C${k+1}: ${q[0]}–${q[1]}`).join(" · ")}</div>`:"";
+    el.innerHTML=`<div class="lv-box" role="dialog" aria-label="Partido en directo">
+      <div class="lv-top">${tb(d.h,"lg")}<b class="num lv-sc" id="lvsh">${LV.sh}</b><span class="muted">–</span><b class="num lv-sc" id="lvsa">${LV.sa}</b>${tb(d.a,"lg")}</div>
+      <div class="lv-mid"><span id="lvclk" class="num"><b>${LV.done?"FINAL":fmtClock(LV.gt)}</b></span>${d.po?'<span class="note">Playoffs</span>':""}</div>
+      <div class="lv-bar"><i id="lvbar" style="width:${LV.gt/28.8}%"></i></div>${qs}
+      <div class="lv-body"><div class="lv-feed">${LV.feed.join("")||'<p class="muted">Salto inicial…</p>'}</div><div class="lv-side">${side}</div></div>
+      <div class="btns lv-ctl">${LV.done?"":[1,2,4].map(s=>`<button class="btn sm${LV.sp===s?" pri":""}" data-lv="${s}">×${s}</button>`).join("")}${LV.done?"":`<button class="btn sm" data-lv="pause">${LV.paused?"Seguir":"Pausa"}</button><button class="btn sm" data-lv="skip">Saltar al final</button>`}<button class="btn sm${LV.done?" pri":""}" data-lv="close">${LV.done?"Cerrar":"Salir"}</button></div></div>`;
+  }else{
+    const c=document.getElementById("lvclk"),b=document.getElementById("lvbar");
+    if(c)c.innerHTML=`<b>${fmtClock(LV.gt)}</b>`;if(b)b.style.width=(LV.gt/28.8)+"%";
+  }
+}
+function maybeLive(){
+  if(!wantLive||!S||LV||GM)return;
+  const g=curGame(wantKind);
+  if(g&&!(S.pend&&S.pend[S.me])&&!isHum(g[0]===S.me?g[1]:g[0])){wantLive=false;openInteractive(wantKind,g)}
+}
+
+/* ---------- partido interactivo minuto a minuto ---------- */
+let GM=null,wantKind="rs";
+function myNextPO(){
+  const po=S.po;if(!po||po.st==="done")return null;const me=S.me;
+  if(po.st==="playin1"){for(let c=0;c<2;c++){const s=po.seeds[c];if(s[6]===me||s[7]===me)return [s[6],s[7]];if(s[8]===me||s[9]===me)return [s[8],s[9]]}return null}
+  if(po.st==="playin2"){for(let c=0;c<2;c++){const g=[po.l7[c],po.w9[c]];if(g.includes(me))return g}return null}
+  const rd=po.rounds[po.rounds.length-1];
+  for(const s of rd){if(s.win>=0||!s.t.includes(me))continue;const side=PAT[s.g.length];return [s.t[side],s.t[1-side]]}
+  return null;
+}
+function curGame(kind){
+  if(kind==="po")return seasonOver()?myNextPO():null;
+  if(seasonOver())return null;
+  const gi=SCH.days[S.day].find(g=>{const x=SCH.games[g];return x[0]===S.me||x[1]===S.me});
+  return gi===undefined?null:SCH.games[gi];
+}
+function gmSide(tm,po){
+  const T=S.teams[tm],L=lineup(T,po),tg=new Map(L.map(x=>[x.p,x.m]));
+  const pl=T.pl.filter(p=>!p.i).sort((a,b)=>b.o-a.o).map(p=>({p,n:p.n,pos:p.p,o:p.o,e:100,m:0,pts:0,on:false,tg:tg.get(p)||0}));
+  const side={tm,pl,auto:true,pts:0};
+  autoSub(side,0);
+  return side;
+}
+function effO(x){return x.o-Math.max(0,78-x.e)*.3}
+function autoSub(side,min){
+  const den=Math.max(48,min+1);
+  const sc=x=>x.tg*(min+1)/den-x.m+(x.e-60)*.04+(x.on?.8:0)+(x.tg?0:-50);
+  const sorted=side.pl.slice().sort((a,b)=>sc(b)-sc(a));
+  side.pl.forEach(x=>{x.on=false});sorted.slice(0,5).forEach(x=>{x.on=true});
+}
+function openInteractive(kind,g){
+  closeLive();
+  const [h,a]=g,po=kind==="po",hs=gmSide(h,po),as=gmSide(a,po);
+  const mine=h===S.me?hs:as;
+  GM={kind,h,a,po,hs,as,mine,mi:h===S.me?0:1,gt:0,min:0,end:2880,sp:1,paused:false,done:false,sel:null,q:[],feed:[],sh:0,sa:0,qs:[],last:performance.now(),ot:0,fin:false};
+  mine.auto=!S.teams[S.me].man;
+  let el=document.getElementById("live");
+  if(!el){el=document.createElement("div");el.id="live";el.className="live";document.body.appendChild(el)}
+  el.onclick=gmClick;
+  gmBuild();requestAnimationFrame(gmTick);
+}
+function gmMinute(){
+  const G=GM,m=G.min;
+  [G.hs,G.as].forEach(s=>{if(s.auto)autoSub(s,m)});
+  const R=s=>{const on=s.pl.filter(x=>x.on);return on.reduce((t,x)=>t+effO(x),0)/Math.max(1,on.length)};
+  const d=(R(G.hs)-R(G.as))*.066+.054;
+  const E=2.31;
+  const pts=[Math.max(0,Math.round(E+d/2+gauss()*1.13)),Math.max(0,Math.round(E-d/2+gauss()*1.13))];
+  [G.hs,G.as].forEach((s,si)=>{
+    const on=s.pl.filter(x=>x.on);let left=pts[si];const plays=[];
+    while(left>0){
+      const r=Math.random();const v=left>=3&&r<.24?3:(left>=2&&r<.86?2:1);
+      let tot=0;const w=on.map(x=>Math.pow(Math.max(effO(x)-42,1),1.7));w.forEach(z=>{tot+=z});
+      let x=Math.random()*tot,sc=on[0];for(let k=0;k<on.length;k++){x-=w[k];if(x<=0){sc=on[k];break}}
+      let a=null;
+      if(v>=2&&Math.random()<.55){const o=on.filter(z=>z!==sc);a=o[Math.floor(Math.random()*o.length)].n}
+      plays.push({s:si,x:sc,v,a});left-=v;
+    }
+    plays.forEach(p=>{p.t=m*60+1+Math.random()*58;G.q.push(p)});
+  });
+  G.q.sort((x,y)=>x.t-y.t);
+  [G.hs,G.as].forEach(s=>s.pl.forEach(x=>{if(x.on){x.e=Math.max(0,x.e-1.7);x.m++}else x.e=Math.min(100,x.e+2.5)}));
+  G.min++;
+}
+function gmApply(e){
+  const G=GM,s=e.s===0?G.hs:G.as;
+  if(e.s===0)G.sh+=e.v;else G.sa+=e.v;
+  s.pts+=e.v;e.x.pts+=e.v;
+  G.feed.unshift(`<div><span class="muted num">${fmtClock(e.t)}</span> ${tb(e.s===0?G.h:G.a)} ${esc(evText({n:e.x.n,v:e.v,a:e.a,t:Math.floor(e.t)}))} <b class="num">${G.sh}–${G.sa}</b></div>`);
+  if(G.feed.length>12)G.feed.length=12;
+}
+function gmAdvance(to){
+  const G=GM;
+  while(!G.done){
+    while(G.min*60<=G.gt&&G.min*60<G.end)gmMinute();
+    const target=Math.min(to,Math.min(G.min*60,G.end));
+    if(target<=G.gt&&to<=G.gt)break;
+    G.gt=Math.max(G.gt,target);
+    while(G.q.length&&G.q[0].t<=G.gt)gmApply(G.q.shift());
+    while(G.qs.length<3&&G.gt>=(G.qs.length+1)*720){G.qs.push([G.sh,G.sa]);G.feed.unshift(`<div class="q">Final del ${G.qs.length}º cuarto · ${esc(TEAMS[G.h][1])} ${G.sh}–${G.sa} ${esc(TEAMS[G.a][1])}</div>`)}
+    if(G.gt>=G.end){
+      while(G.q.length)gmApply(G.q.shift());
+      if(G.sh===G.sa){G.end+=300;G.ot++;G.feed.unshift(`<div class="q">Empate: prórroga ${G.ot}</div>`)}
+      else{G.done=true;break}
+    }
+    if(G.gt>=to)break;
+  }
+  if(G.feed.length>12)G.feed.length=12;
+}
+function gmTick(now){
+  const G=GM;if(!G)return;
+  const dt=Math.min(.25,(now-G.last)/1000);G.last=now;
+  if(!G.paused&&!G.done){
+    const before=G.min;
+    gmAdvance(G.gt+dt*G.sp*2880/110);
+    gmPaintLive(G.min!==before);
+    if(G.done){gmBuild();gmFinish();return}
+  }
+  requestAnimationFrame(gmTick);
+}
+function gmClockText(){const G=GM;if(G.done)return "FINAL"+(G.ot?` (${G.ot}ª prórroga)`:"");if(G.gt>=2880){const r=Math.max(0,G.end-G.gt);return `PR${G.ot} ${String(Math.floor(r/60)).padStart(2,"0")}:${String(Math.floor(r%60)).padStart(2,"0")}`}return fmtClock(G.gt)}
+function gmRoster(){
+  const G=GM,s=G.mine,opp=G.mi===0?G.as:G.hs;
+  const rows=s.pl.slice().sort((a,b)=>(b.on-a.on)||b.o-a.o).map(x=>{
+    const ef=Math.round(effO(x)),cl=G.sel===x?" sel":"";
+    return `<div class="gr${x.on?" on":""}${cl}" data-gm="${s.pl.indexOf(x)}"><span class="gp">${x.on?"●":"○"}</span><span class="grow">${esc(x.n)} <span class="muted">${x.pos}</span></span><span class="num">${ef}</span><span class="en"><i style="width:${x.e}%;background:${x.e>60?"var(--good)":x.e>35?"var(--warn)":"var(--bad)"}"></i></span><span class="num muted">${x.m}'</span><b class="num">${x.pts}</b></div>`}).join("");
+  const on=opp.pl.filter(x=>x.on).map(x=>esc(x.n.split(" ").slice(-1)[0])).join(", ");
+  return `<h4>Tu equipo · toca un jugador y luego otro para cambiarlos</h4>${rows}<p class="note">Rival en pista: ${on}</p>`;
+}
+function gmBuild(){
+  const el=document.getElementById("live");if(!el||!GM)return;
+  const G=GM;
+  el.innerHTML=`<div class="lv-box" role="dialog" aria-label="Partido en directo">
+    <div class="lv-top">${tb(G.h,"lg")}<b class="num lv-sc" id="lvsh">${G.sh}</b><span class="muted">–</span><b class="num lv-sc" id="lvsa">${G.sa}</b>${tb(G.a,"lg")}</div>
+    <div class="lv-mid"><span id="lvclk" class="num"><b>${gmClockText()}</b></span>${G.po?'<span class="note">Playoffs</span>':""}<span class="note" id="gmq"></span></div>
+    <div class="lv-bar"><i id="lvbar" style="width:${Math.min(100,G.gt/28.8)}%"></i></div>
+    <div class="lv-body"><div class="lv-feed" id="gmfeed">${G.feed.join("")}</div><div class="lv-side" id="gmros">${gmRoster()}</div></div>
+    <div class="btns lv-ctl">${G.done?`<span class="muted">Partido terminado: guardando…</span>`:[1,2,4].map(s=>`<button class="btn sm${G.sp===s?" pri":""}" data-lv="${s}">×${s}</button>`).join("")+`<button class="btn sm${G.paused?" pri":""}" data-lv="pause">${G.paused?"Seguir":"Pausa"}</button><button class="btn sm${G.mine.auto?" pri":""}" data-lv="auto">Rotación automática: ${G.mine.auto?"sí":"no"}</button><button class="btn sm" data-lv="skip">Terminar rápido</button>`}</div></div>`;
+}
+function gmPaintLive(minuteChanged){
+  const G=GM,q=id=>document.getElementById(id);
+  const a=q("lvsh"),b=q("lvsa"),c=q("lvclk"),d=q("lvbar"),f=q("gmfeed");
+  if(a)a.textContent=G.sh;if(b)b.textContent=G.sa;if(c)c.innerHTML=`<b>${gmClockText()}</b>`;if(d)d.style.width=Math.min(100,G.gt/28.8)+"%";
+  if(f)f.innerHTML=G.feed.join("");
+  if(minuteChanged){const r=q("gmros");if(r)r.innerHTML=gmRoster()}
+}
+function gmClick(e){
+  if(!GM)return;
+  const G=GM;
+  const lv=e.target.closest("[data-lv]");
+  if(lv){
+    const a=lv.dataset.lv;
+    if(a==="pause")G.paused=!G.paused;
+    else if(a==="auto"){G.mine.auto=!G.mine.auto;if(G.mine.auto)autoSub(G.mine,G.min)}
+    else if(a==="skip"){G.mine.auto=true;gmAdvance(1e9);if(G.sh===G.sa)gmAdvance(1e9)}
+    else G.sp=+a;
+    gmBuild();if(G.done){gmFinish()}return;
+  }
+  const r=e.target.closest("[data-gm]");if(!r)return;
+  const x=G.mine.pl[+r.dataset.gm];if(!x)return;
+  if(!G.sel){G.sel=x;G.paused=true}
+  else if(G.sel===x)G.sel=null;
+  else if(G.sel.on!==x.on){
+    const a=G.sel,b=x;const t=a.on;a.on=b.on;b.on=t;
+    G.mine.auto=false;G.sel=null;
+  }else G.sel=x;
+  gmBuild();
+}
+function gmFinish(){
+  const G=GM;if(!G||G.fin===2)return;G.fin=2;
+  const mk=s=>s.pl.filter(x=>x.m>0).map(x=>[x.n,x.pts,x.m]);
+  const res={h:G.h,a:G.a,po:G.po,ph:G.sh,pa:G.sa,hb:mk(G.hs),ab:mk(G.as),ot:G.ot};
+  const kind=G.kind;
+  const sum=`${TEAMS[G.h][1]} ${G.sh}–${G.sa} ${TEAMS[G.a][1]}${G.ot?` (${G.ot} prórroga${G.ot>1?"s":""})`:""}`;
+  GM=null;
+  setTimeout(async()=>{
+    await commit(()=>{S.pend=S.pend||{};S.pend[S.me]=res;go(kind,null)});
+    const el=document.getElementById("live");
+    if(el){
+      const det=S.dets&&S.dets[S.me];
+      const tbl=(box,tm)=>`<h4>${esc(TEAMS[tm][0])}</h4><div class="tw"><table><thead><tr><th>Jugador</th><th class="r">Min</th><th class="r">Pts</th><th class="r">Reb</th><th class="r">Ast</th></tr></thead><tbody>${box.slice().sort((a,b)=>b[1]-a[1]).map(b=>`<tr><td>${esc(b[0])}</td><td class="r">${b[2]}</td><td class="r"><b>${b[1]}</b></td><td class="r">${b[3]===undefined?"–":b[3]}</td><td class="r">${b[4]===undefined?"–":b[4]}</td></tr>`).join("")}</tbody></table></div>`;
+      const ok=det&&det.ph===res.ph&&det.pa===res.pa;
+      const wait=S.pend&&S.pend[S.me];
+      el.innerHTML=`<div class="lv-box"><div class="lv-top">${tb(res.h,"lg")}<b class="num lv-sc">${res.ph}</b><span class="muted">–</span><b class="num lv-sc">${res.pa}</b>${tb(res.a,"lg")}</div><div class="lv-mid"><b>FINAL</b></div><p class="muted" style="text-align:center">${esc(sum)}${wait?" · Resultado guardado; esperando a que los demás mánagers estén listos para cerrar la jornada.":""}</p><div class="lv-body" style="grid-template-columns:1fr 1fr"><div>${tbl(ok?det.hb:res.hb,res.h)}</div><div>${tbl(ok?det.ab:res.ab,res.a)}</div></div><div class="btns lv-ctl"><button class="btn pri" data-lv="close">Cerrar</button></div></div>`;
+      el.onclick=e=>{if(e.target.closest('[data-lv="close"]'))closeLive()};
+    }
+  },50);
+}
+/* ---------- guardado ---------- */
+function queueSave(){if(LG){if(!INTX)syncMine();return}dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(flush,500)}
+async function flush(){
+  if(LG||saving||!dirty||!S)return;
+  saving=true;dirty=false;
+  const payload=JSON.stringify(S);
+  try{localStorage.setItem(LS,payload)}catch(e){}
+  if(dbDoc){
+    try{await dbDoc.set({v:2,state:payload,at:Date.now()});saveState="ok"}
+    catch(e){saveState=(e&&e.code==="invalid_argument")?"ro":"err"}
+  }else saveState="local";
+  saving=false;paintSave();
+  if(dirty)flush();
+}
+function paintSave(){
+  const el=document.getElementById("savest");if(!el)return;
+  const m={ok:["ok",LG?"Liga sincronizada":"Guardada en tu cuenta"],local:["","Guardada solo en este navegador"],err:["err","No se pudo guardar en la nube; sigue en este navegador"],
+    ro:["err","Tu acceso es de solo lectura: pide al dueño acceso de colaborador"],"":["","Sin guardar aún"]}[saveState]||["",""];
+  el.innerHTML=`<span class="dot ${m[0]}"></span>${m[1]}`;
+}
+function migrate(){
+  if(!S.hum)S.hum=[S.me];
+  if(!S.rdy)S.rdy={};
+  if(!S.props)S.props=[];
+  if(!S.dets)S.dets={};
+  if(!S.pend)S.pend={};
+  if(S.manual){if(S.teams[S.me])S.teams[S.me].man=true}
+  delete S.manual;
+  if(S.as&&!S.as.E){S.as.E={};if(S.as.et||S.as.ed)S.as.E[S.me]={t:S.as.et||"",d:S.as.ed||""}}
+  if(!S.v||S.v<2){S.v=2;S.po=null;S.trades=[]}
+  if(S.season===undefined){S.season=0;S.fa=[];S.hist=[];S.dr=null;S.as=ASDEF();S.mvp=null}
+  if(S.pk===undefined){S.pk=mkPicks(S.season);S.aw=null}
+  S.teams.forEach(t=>t.pl.forEach(p=>{if(p.c===undefined)newC(p)}));
+  if(S.ld===undefined)S.ld=S.last&&S.last.length?Math.max(0,S.day-1):0;
+}
+
+/* ---------- nueva partida ---------- */
+function mkState(me){
+  const seed=(Math.random()*2147483647)|0;
+  return {v:2,seed,me,hum:[me],rdy:{},props:[],dets:{},pend:{},day:0,ld:0,R:new Array(1230).fill(0),log:[],news:[],last:[],po:null,trades:[],season:0,fa:[],hist:[],dr:null,as:ASDEF(),mvp:null,pk:mkPicks(0),aw:null,
+    teams:TEAMS.map(t=>({w:0,l:0,pf:0,pa:0,pl:DATA[t[0]].map(d=>mkp(d))}))};
+}
+function newGame(me){
+  S=mkState(me);
+  setupSchedule();view="inicio";viewTeam=me;askNew=false;tt=-1;gs.clear();rs.clear();gp.clear();rp.clear();tmsg="";
+  queueSave();render();
+}
+async function resetGame(){
+  S=null;SCH=null;askNew=false;dirty=false;clearTimeout(saveTimer);
+  try{localStorage.removeItem(LS)}catch(e){}
+  if(dbDoc){try{await dbDoc.delete()}catch(e){}}
+  render();
+}
+
+/* ---------- vistas ---------- */
+function rosterTable(ti){
+  const t=S.teams[ti],mm=new Map(lineup(t,false).map(x=>[x.p,x.m]));
+  const rows=t.pl.slice().sort((a,b)=>b.o-a.o).map(p=>{
+    const m=mm.get(p)||0,role=p.i?`<span class="warn">Lesión · ${p.i} d</span>`:(m>=27?"Titular":m>=13?"Rotación":m>0?"Banquillo":"No juega"),g=p.s[0];
+    return `<tr><td>${esc(p.n)}</td><td>${p.p}</td><td class="r">${p.a}</td><td class="r ovr">${p.o}</td><td class="r">${p.t}</td>
+      <td class="r">${g}</td><td class="r">${g?(p.s[1]/g).toFixed(1):"–"}</td><td class="r">${g?(p.s[2]/g).toFixed(1):"–"}</td><td class="r">${g?(p.s[3]/g).toFixed(1):"–"}</td><td class="r">${p.i?"–":m}</td><td class="r">${p.c!=null?p.c.toFixed(1):"–"}</td><td class="r">${p.y>0?p.y:`<span class="warn">Vence</span>`}</td><td>${role}</td></tr>`;
+  }).join("");
+  return `<div class="tw"><table><thead><tr><th>Jugador</th><th>Pos</th><th class="r">Edad</th><th class="r">OVR</th><th class="r">POT</th><th class="r">PJ</th><th class="r">PTS</th><th class="r">REB</th><th class="r">AST</th><th class="r">MIN</th><th class="r">Sal. (M)</th><th class="r">Años</th><th>Rol</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function standTable(conf,full){
+  const order=standings(conf),lead=S.teams[order[0]];
+  const rows=order.map((ti,k)=>{
+    const t=S.teams[ti],gb=((lead.w-t.w)+(t.l-lead.l))/2,gp=t.w+t.l;
+    return `<tr class="${ti===S.me?"me":""}${k===6||k===10?" cut":""} click" data-act="team" data-i="${ti}"><td class="r muted">${k+1}</td><td>${tb(ti)} ${full?esc(TEAMS[ti][0]):""}</td>
+      <td class="r">${t.w}</td><td class="r">${t.l}</td><td class="r">${gp?pct(t).toFixed(3).slice(1):".000"}</td><td class="r">${k===0?"–":gb.toFixed(1)}</td><td class="r ${t.pf-t.pa>=0?"good":"bad"}">${gp?(t.pf-t.pa>0?"+":"")+((t.pf-t.pa)/gp).toFixed(1):"–"}</td></tr>`;
+  }).join("");
+  return `<div class="tw"><table><thead><tr><th class="r">#</th><th>Equipo</th><th class="r">G</th><th class="r">P</th><th class="r">%</th><th class="r">Dif.</th><th class="r">+/−</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function resultRow(g){
+  const [d,opp,home,f,a,tn,tp]=g,win=f>a;
+  return `<div class="row"><span class="pill ${win?"w":"l"}">${win?"G":"P"}</span><span class="muted num" style="min-width:74px">${fmtDate(d)}</span>
+    <span class="grow">${home?"vs":"@"} ${tb(opp)} <span class="muted">${esc(TEAMS[opp][0])}</span></span>
+    <b class="num">${f}–${a}</b><span class="note" style="min-width:120px;text-align:right">${esc(tn)} ${tp}</span></div>`;
+}
+function poButtons(){
+  const po=S.po;
+  if(po&&po.st==="done")return "";
+  return poBtns();
+}
+function stageName(){
+  const po=S.po;if(!po)return "Play-in";
+  return {playin1:"Play-in · primera jornada",playin2:"Play-in · último billete",r1:ROUNDS[0],r2:ROUNDS[1],cf:ROUNDS[2],finals:ROUNDS[3],done:"Postseason terminada"}[po.st];
+}
+function vInicio(){
+  const over=seasonOver(),nx=MY.find(g=>g.d>=S.day),m=S.teams[S.me];
+  let next;
+  if(over){
+    const st=poStatus(),po=S.po,champ=po&&po.champ>=0?`<div class="row"><span>Campeón:</span>${tb(po.champ)} <b>${esc(TEAMS[po.champ][0])}</b></div>`:"";
+    next=`<div class="card"><h3>Postseason · ${stageName()}</h3><div class="next"><div class="vs">${m.w}–${m.l}</div><div><div class="${st.c}"><b>${st.t}</b></div><div class="muted">${rankOf(S.me)}º en el ${CONFS[S.me<15?0:1]}</div></div></div>${champ}${mvpRow()}${poButtons()}
+      ${po&&po.st==="done"?`<div class="btns"><button class="btn pri" data-act="tab" data-v="draft">Ir al draft</button></div>`:`<p class="note">Mira el cuadro completo en la pestaña Playoffs.</p>`}</div>`;
+  }else{
+    const [h,a]=SCH.games[nx.gi],home=h===S.me,opp=home?a:h;
+    const mine=teamStr(m).toFixed(1),theirs=teamStr(S.teams[opp]).toFixed(1);
+    next=`<div class="card"><h3>Siguiente partido</h3>
+      <div class="next">${tb(opp,"lg")}<div><div class="vs">${home?"vs":"@"} ${esc(TEAMS[opp][0])}</div>
+      <div class="muted">${fmtDate(nx.d)} · ${home?"en casa":"fuera"} · bilan. rival ${S.teams[opp].w}–${S.teams[opp].l}</div></div></div>
+      <p class="muted">Fuerza de tu rotación: <b class="num" style="color:var(--ink)">${mine}</b> contra <b class="num" style="color:var(--ink)">${theirs}</b>${S.teams[S.me].man?" (minutos manuales)":""}</p>
+      ${simBtns()}
+      <p class="note">Quedan ${SCH.days.length-S.day} jornadas y ${MY.filter(g=>g.d>=S.day).length} partidos de tu equipo. ${tradeOpen()?`Plazo de traspasos hasta el ${fmtDate(TDL())}.`:""}</p></div>`;
+  }
+  const rec=S.log.filter(g=>g[7]===undefined||g[7]===S.me).slice(-5).reverse().map(resultRow).join("")||`<p class="muted">Aún no has jugado ningún partido.</p>`;
+  const inj=m.pl.filter(p=>p.i).sort((a,b)=>b.o-a.o).map(p=>`<div class="row"><span class="grow">${esc(p.n)} <span class="muted">${p.p} · ${p.o}</span></span><span class="warn num">${p.i} días</span></div>`).join("")||`<p class="muted">Toda la plantilla está sana.</p>`;
+  const news=S.news.filter(n=>n[3]===undefined||n[3]===S.me).slice(0,6).map(n=>`<div class="note">${fmtDate(n[0])}: ${esc(n[1])} se lesiona (${n[2]} días).</div>`).join("");
+  const last=S.last.length?S.last.map(([h,a,ph,pa])=>`<div class="row"><span class="grow">${tb(h)} ${tb(a)}</span><b class="num" style="${h===S.me||a===S.me?"color:var(--accent)":""}">${ph}–${pa}</b></div>`).join(""):`<p class="muted">Se mostrarán los resultados de la última jornada simulada.</p>`;
+  return `<div class="grid">${next}
+    <div class="card"><h3>Tus últimos partidos</h3><div class="list">${rec}</div>${S.dets&&S.dets[S.me]?`<div class="btns"><button class="btn sm" data-act="replay">▶ Ver repetición del último partido</button></div>`:""}</div>${lgCard()}
+    <div class="card"><h3>Clasificación · ${CONFS[S.me<15?0:1]}</h3>${standTable(S.me<15?0:1,false)}<p class="note">Línea discontinua: puestos 7–10 juegan el play-in.</p></div>
+    <div class="card"><h3>Parte médico</h3><div class="list">${inj}</div>${news}</div>
+    <div class="card"><h3>Última jornada${S.last.length?" · "+fmtDate(S.ld):""}</h3><div class="list">${last}</div></div>${recapCard()}${histCard()}</div>`;
+}
+function vPlantilla(){
+  const m=S.teams[S.me],avg=(m.pl.reduce((s,p)=>s+p.a,0)/m.pl.length).toFixed(1);
+  return `<div class="card"><div class="btns" style="align-items:baseline;gap:22px"><h2>Plantilla</h2><span class="muted">Fuerza ${teamStr(m).toFixed(1)} (nº ${strengthRank(S.me)} de 30) · edad media ${avg} · ${m.pl.length} jugadores · masa salarial ${payroll(m).toFixed(1)} M de ${CAP} M</span></div>${rosterTable(S.me)}
+    <p class="note">Los minutos se reparten solos por valoración entre los jugadores sanos, salvo que los cambies en la pestaña Rotación.</p></div>${S.dr?expCard():""}${offseason()?cutCard():""}${faCard()}`;
+}
+function vRotacion(){
+  const t=S.teams[S.me],info=minsInfo(),mm=new Map(info.L.map(x=>[x.p,x.m]));
+  const rows=t.pl.map((p,i)=>({p,i})).sort((a,b)=>b.p.o-a.p.o).map(({p,i})=>{
+    const m=S.teams[S.me].man?(p.m||0):(mm.get(p)||0);
+    const flag=p.i?`<span class="warn">Lesión · ${p.i} d</span>`:(m>36?`<span class="warn">Cansancio</span>`:"");
+    return `<tr><td>${esc(p.n)}</td><td>${p.p}</td><td class="r ovr">${p.o}</td><td style="min-width:170px"><input type="range" min="0" max="42" step="1" value="${m}" data-pi="${i}" class="mrange" aria-label="Minutos de ${esc(p.n)}"></td><td class="r"><b id="mv-${i}">${m}</b></td><td>${flag}</td></tr>`;
+  }).join("");
+  return `<div class="card"><div class="btns" style="align-items:baseline;gap:22px"><h2>Rotación</h2><span class="muted">${S.teams[S.me].man?"Minutos manuales":"Minutos automáticos"}</span></div>
+    <p class="muted" style="max-width:70ch">Reparte los minutos de cada jugador. Más de 36 minutos cansa al jugador y baja su rendimiento, y cuanto más juega, más riesgo de lesión. Si el total no suma 240 (5 jugadores × 48), los minutos se reparten en proporción.</p>
+    <div class="btns" style="align-items:center"><span>Total sano: <b class="num" id="mtot">${info.tot}</b> / 240</span><span>Fuerza: <b class="num" id="mstr">${info.cur.toFixed(1)}</b> <span class="note" id="mauto">(automático: ${info.auto.toFixed(1)})</span></span>
+      <button class="btn sm" data-act="fit240">Ajustar a 240</button><button class="btn sm" data-act="auto"${S.teams[S.me].man?"":" disabled"}>Volver a automático</button></div>
+    <div class="tw"><table><thead><tr><th>Jugador</th><th>Pos</th><th class="r">OVR</th><th>Minutos</th><th class="r">MIN</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function vTraspasos(){
+  const me=S.teams[S.me];
+  if(tt<0||tt===S.me)tt=S.me===0?1:0;
+  const ot=S.teams[tt],open=tradeOpen(),ev=tradeEval();
+  const opts=TEAMS.map((x,k)=>k===S.me?"":`<option value="${k}"${k===tt?" selected":""}>${esc(x[0])}</option>`).join("");
+  const dis=open?"":" disabled";
+  const list=(team,set,kind)=>team.pl.map((p,i)=>({p,i})).filter(x=>x.p.y>0).sort((a,b)=>b.p.o-a.p.o).map(({p,i})=>
+    `<label class="chk ${set.has(i)?"on":""}"><input type="checkbox" data-chk="${kind}" data-i="${i}"${set.has(i)?" checked":""}${dis}><span class="grow">${esc(p.n)} <span class="muted">${p.p} · ${p.a} años · ${(p.c||0).toFixed(1)} M · ${p.y}a</span></span><b class="ovr">${p.o}</b><span class="muted num">/${p.t}</span></label>`).join("");
+  const plist=(h,set,kind)=>S.pk.map((k,i)=>({k,i})).filter(x=>x.k[3]===h&&(x.k[0]>S.season||(x.k[0]===S.season&&!S.dr))).sort((a,b)=>a.k[0]-b.k[0]||a.k[1]-b.k[1]).map(({k,i})=>
+    `<label class="chk ${set.has(i)?"on":""}"><input type="checkbox" data-chk="${kind}" data-i="${i}"${set.has(i)?" checked":""}${dis}><span class="grow">${pickLabel(k)}</span></label>`).join("");
+  const nGive=ev.give.length+ev.gpk.length,nGet=ev.get.length+ev.rpk.length;
+  let verdict;
+  if(!open)verdict=`<div class="verdict no"><b>Mercado cerrado.</b> El plazo de traspasos terminó el ${fmtDate(TDL())}; se reabre al terminar los playoffs.</div>`;
+  else if(!nGive||!nGet)verdict=`<div class="verdict">Marca al menos un jugador o una elección de cada lado para valorar el traspaso.</div>`;
+  else if(!ev.okN)verdict=`<div class="verdict no"><b>Plantillas fuera de límites.</b> Con este traspaso quedarías con ${ev.nm} jugadores y ${esc(TEAMS[tt][1])} con ${ev.no}; cada equipo debe tener entre 12 y 15.</div>`;
+  else if(ev.sal)verdict=`<div class="verdict no"><b>Los salarios no cuadran.</b> ${esc(ev.sal)}</div>`;
+  else if(isHum(tt))verdict=`<div class="verdict ok"><b>Propuesta a un mánager.</b> ${esc(TEAMS[tt][0])} tendrá que aceptarla. Quedarías con ${ev.nm} jugadores y ellos con ${ev.no}.</div>`;
+  else if(ev.r>=1)verdict=`<div class="verdict ok"><b>${esc(TEAMS[tt][0])} aceptaría.</b> Quedarías con ${ev.nm} jugadores y ellos con ${ev.no}.</div>`;
+  else if(ev.r>=.8)verdict=`<div class="verdict mid"><b>Casi.</b> Piden algo más de valor para aceptar.</div>`;
+  else verdict=`<div class="verdict no"><b>Lo rechazan.</b> Lo que ofreces vale mucho menos que lo que piden.</div>`;
+  const hist=S.trades.filter(t=>t[4]===undefined||t[4]===S.me).map(t=>`<div class="row"><span class="muted num" style="min-width:74px">${fmtDate(t[0])}</span>${tb(t[1])}<span class="grow">Das ${esc(t[2].join(", "))}; recibes ${esc(t[3].join(", "))}</span></div>`).join("")||`<p class="muted">Todavía no has hecho ningún traspaso.</p>`;
+  return `<div class="grid"><div class="card full"><div class="btns" style="align-items:center"><h2>Traspasos</h2><label class="muted" for="selTrade">Con</label><select id="selTrade">${opts}</select>
+      <span class="note" style="margin-left:auto">${open?(offseason()?"Mercado de verano abierto":`Plazo hasta el ${fmtDate(TDL())}`):"Mercado cerrado"}</span></div>
+      <p class="muted" style="max-width:72ch">Marca lo que das y lo que pides, jugadores y elecciones de draft. Los equipos valoran la edad, el potencial, el contrato y sobre todo la valoración: una estrella vale mucho más que dos buenos jugadores.</p>
+      ${propCard()}<p class="note">Masa salarial: tú ${payroll(me).toFixed(1)} M · ${esc(TEAMS[tt][1])} ${payroll(ot).toFixed(1)} M · tope ${CAP} M. Si un equipo supera el tope tras el traspaso, solo puede recibir hasta el 125% del salario que envía.</p></div>
+    <div class="card"><h3>Tu plantilla (${cnt(me)}) · das ${nGive}</h3><div>${list(me,gs,"give")}${plist(S.me,gp,"gpk")}</div></div>
+    <div class="card"><h3>${esc(TEAMS[tt][0])} (${cnt(ot)}) · pides ${nGet}</h3><div>${list(ot,rs,"get")}${plist(tt,rp,"rpk")}</div></div>
+    <div class="card full">${verdict}${tmsg?`<p class="good"><b>${esc(tmsg)}</b></p>`:""}<div class="btns"><button class="btn pri" data-act="trade"${open&&ev.okN&&!ev.sal&&(isHum(tt)||ev.r>=1)?"":" disabled"}>${isHum(tt)?"Enviar propuesta":"Cerrar traspaso"}</button><button class="btn" data-act="cleartrade">Limpiar selección</button></div></div>
+    <div class="card full"><h3>Traspasos realizados</h3><div class="list">${hist}</div></div></div>`;
+}
+function vCalendario(){
+  const nxd=(MY.find(x=>x.d>=S.day)||{}).d;
+  const rows=MY.map((g,k)=>{
+    const [h,a]=SCH.games[g.gi],home=h===S.me,opp=home?a:h,r=S.R[g.gi];
+    let res="";
+    if(r){const f=home?r[0]:r[1],c=home?r[1]:r[0];res=`<span class="pill ${f>c?"w":"l"}">${f>c?"G":"P"}</span> <b class="num">${f}–${c}</b>`}
+    else if(g.d===nxd)res=`<span class="warn">Siguiente</span>`;
+    return `<tr><td class="r muted">${k+1}</td><td>${fmtDate(g.d)}</td><td>${home?"vs":"@"}</td><td>${tb(opp)} ${esc(TEAMS[opp][0])}</td><td>${res}</td></tr>`;
+  }).join("");
+  return `<div class="card"><h2>Calendario · 82 partidos</h2><div class="tw"><table><thead><tr><th class="r">#</th><th>Fecha</th><th></th><th>Rival</th><th>Resultado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function vClasif(){
+  return `<div class="grid"><div class="card"><h2>Este</h2>${standTable(0,true)}</div><div class="card"><h2>Oeste</h2>${standTable(1,true)}</div>
+    <p class="note full">Puestos 1–6 a playoffs, 7–10 al play-in. Pulsa un equipo para ver su plantilla.</p></div>`;
+}
+function serCard(s){
+  const mine=s.t.includes(S.me);
+  const row=k=>`<div class="sr ${s.win===k?"win":""}">${tb(s.t[k])}<span class="sd muted">(${s.sd[k]})</span><b class="num">${s.w[k]}</b></div>`;
+  const sc=s.g.length?`<div class="note num">${s.g.map(x=>x[0]+"–"+x[1]).join(" · ")}</div>`:"";
+  return `<div class="ser ${mine?"me":""} ${s.win>=0?"done":""}">${row(0)}${row(1)}${sc}</div>`;
+}
+function vPlayoffs(){
+  if(!seasonOver()){
+    return `<div class="grid"><div class="card full"><h2>Así estarían los playoffs hoy</h2><p class="muted">Los playoffs empiezan al acabar los 82 partidos. Ahora mismo: puestos 1–6 pasan directos, 7–10 juegan el play-in.</p></div>
+      <div class="card"><h3>Este</h3>${standTable(0,true)}</div><div class="card"><h3>Oeste</h3>${standTable(1,true)}</div></div>`;
+  }
+  const po=S.po,st=poStatus();
+  const ph=`<div class="ser ph">Por decidir</div>`;
+  const rounds=r=>po.rounds[r]||null;
+  const conf=c=>{
+    const col=(r,from,n)=>{const rd=rounds(r);return `<div class="rc">${Array.from({length:n},(_,k)=>rd?serCard(rd[from+k]):ph).join("")}</div>`};
+    return `<div class="card"><h3>${CONFS[c]}</h3><div class="tw"><div class="bracket"><div><h4>${ROUNDS[0]}</h4>${col(0,c*4,4)}</div><div><h4>Semifinales</h4>${col(1,c*2,2)}</div><div><h4>Final de conferencia</h4>${col(2,c,1)}</div></div></div></div>`;
+  };
+  const pin=[0,1].map(c=>`<div class="card"><h3>Play-in · ${CONFS[c]}</h3><div class="list">${po.pin[c].length?po.pin[c].map(g=>`<div class="row"><span class="note" style="min-width:120px">${g.k}</span><span class="grow">${tb(g.t[0])} ${tb(g.t[1])}</span><b class="num">${g.r[0]}–${g.r[1]}</b></div>`).join(""):`<p class="muted">Se juega al empezar la postseason: ${[6,7,8,9].map(k=>tb(po.seeds[c][k])).join(" ")}</p>`}</div></div>`).join("");
+  const fin=rounds(3)?serCard(rounds(3)[0]):ph;
+  const champ=po.champ>=0?`<div class="card full"><div class="next">${tb(po.champ,"lg")}<div><h2>Campeón de la NBA</h2><div class="muted">${esc(TEAMS[po.champ][0])}</div></div></div></div>`:"";
+  return `<div class="grid"><div class="card full"><div class="btns" style="align-items:baseline;gap:18px"><h2>Playoffs</h2><span class="muted">${stageName()}</span><span class="${st.c}" style="margin-left:auto"><b>${st.t}</b></span></div>${poButtons()}</div>
+    ${champ}${conf(0)}${conf(1)}<div class="card full"><h3>Finales NBA</h3><div style="max-width:300px">${fin}</div></div>${pin}</div>`;
+}
+function vLideres(){
+  const hasPo=S.po&&S.teams.some(t=>t.pl.some(p=>p.ps));
+  const blk=(t,idx)=>{const rows=leaders(idx,10,ldPo&&hasPo).map((l,k)=>`<tr class="${l[1]===S.me?"me":""}"><td class="r muted">${k+1}</td><td>${esc(l[0])}</td><td>${tb(l[1])}</td><td class="r"><b>${l[2].toFixed(1)}</b></td></tr>`).join("");
+    return `<div class="card"><h3>${t}</h3>${rows?`<div class="tw"><table><tbody>${rows}</tbody></table></div>`:`<p class="muted">Sin datos todavía.</p>`}</div>`};
+  const sw=hasPo?`<div class="btns full"><button class="btn sm ${ldPo?"":"pri"}" data-act="ldmode" data-v="0">Temporada regular</button><button class="btn sm ${ldPo?"pri":""}" data-act="ldmode" data-v="1">Playoffs</button></div>`:"";
+  return `<div class="grid">${sw}${blk("Puntos por partido",1)}${blk("Rebotes por partido",2)}${blk("Asistencias por partido",3)}</div>`;
+}
+function vEquipos(){
+  const t=S.teams[viewTeam],rk=S.teams.map((x,k)=>[teamStr(x),k]).sort((a,b)=>b[0]-a[0]);
+  const opts=TEAMS.map((x,k)=>`<option value="${k}"${k===viewTeam?" selected":""}>${esc(x[0])}</option>`).join("");
+  const board=rk.map(([s,k],n)=>`<tr class="click ${k===S.me?"me":""}" data-act="team" data-i="${k}"><td class="r muted">${n+1}</td><td>${tb(k)} ${esc(TEAMS[k][0])}</td><td class="r"><b>${s.toFixed(1)}</b></td><td class="r">${S.teams[k].w}–${S.teams[k].l}</td></tr>`).join("");
+  return `<div class="grid"><div class="card full"><div class="btns" style="align-items:center">${tb(viewTeam,"lg")}<h2>${esc(TEAMS[viewTeam][0])}</h2>
+      <span class="muted">${t.w}–${t.l} · fuerza ${teamStr(t).toFixed(1)} · ${DIVS[(viewTeam/5)|0]}</span><label style="margin-left:auto"><select id="selTeam" aria-label="Elegir equipo">${opts}</select></label></div>${rosterTable(viewTeam)}
+      ${viewTeam!==S.me?`<div class="btns"><button class="btn sm" data-act="tradewith" data-i="${viewTeam}">Proponer un traspaso</button></div>`:""}</div>
+    <div class="card full"><h3>Ranking de plantillas</h3><div class="tw"><table><thead><tr><th class="r">#</th><th>Equipo</th><th class="r">Fuerza</th><th class="r">Bilan.</th></tr></thead><tbody>${board}</tbody></table></div></div></div>`;
+}
+function vPicker(){
+  const card=i=>{
+    const pl=DATA[TEAMS[i][0]].slice().sort((a,b)=>b.ovr-a.ovr),s=ovrStr(pl.map(p=>p.ovr));
+    return `<button class="pick" data-act="pick" data-i="${i}">${tb(i,"lg")}<div><div class="n">${esc(TEAMS[i][0])}</div><div class="m">Fuerza ${s.toFixed(1)} · ${esc(pl[0].name)} ${pl[0].ovr}</div></div></button>`;
+  };
+  const conf=c=>`<div class="card"><h2>${CONFS[c]}</h2><div class="picker">${Array.from({length:15},(_,k)=>card(c*15+k)).join("")}</div></div>`;
+  return modeBar()+`<div class="hero"><h1>Hardwood GM</h1><p class="muted">Dirige una franquicia de la NBA con las plantillas de la temporada 2026-27. Elige tu equipo; cada persona que abra esta página juega su propia partida, guardada en su cuenta.</p></div>${conf(0)}${conf(1)}
+    <p class="note">Las valoraciones de los jugadores son estimaciones propias a partir de su rendimiento reciente, no datos oficiales.</p>`;
+}
+const TABS=[["inicio","Inicio"],["plantilla","Plantilla"],["rotacion","Rotación"],["traspasos","Traspasos"],["calendario","Calendario"],["clasif","Clasificación"],["allstar","All-Star"],["playoffs","Playoffs"],["premios","Premios"],["draft","Draft"],["lideres","Líderes"],["equipos","Equipos"]];
+function shell(){
+  const m=S.teams[S.me],gp=m.w+m.l;
+  const body={inicio:vInicio,plantilla:vPlantilla,rotacion:vRotacion,traspasos:vTraspasos,calendario:vCalendario,clasif:vClasif,playoffs:vPlayoffs,allstar:vAllstar,premios:vPremios,draft:vDraft,lideres:vLideres,equipos:vEquipos}[view]();
+  const date=!seasonOver()?(MY.find(g=>g.d>=S.day)?fmtDate(S.day):""):(S.po&&S.po.pd?`Postseason · ${fmtDate(S.ld)}`:"Fin de temporada regular");
+  return `<header class="top" style="--team:${TEAMS[S.me][2]}"><div class="id">${tb(S.me,"lg")}<div style="min-width:0"><h1>${esc(TEAMS[S.me][0])}</h1><div class="sub">Temporada ${seasonLabel()} · ${date}</div></div></div>
+    <div class="score"><div><b class="num">${m.w}–${m.l}</b><span>Bilance</span></div><div><b class="num">${gp?rankOf(S.me)+"º":"–"}</b><span>${CONFS[S.me<15?0:1]}</span></div><div><b class="num">${strengthRank(S.me)}º</b><span>Plantilla</span></div></div></header>
+    <nav class="tabs" role="tablist">${TABS.map(t=>`<button role="tab" aria-selected="${view===t[0]}" data-act="tab" data-v="${t[0]}">${t[1]}</button>`).join("")}</nav>
+    ${body}
+    <footer class="btns" style="align-items:center;justify-content:space-between"><span class="save" id="savest"></span>${modeBar()}
+    ${LG?"":askNew?`<span class="btns" style="align-items:center"><span class="note">Se borrará esta partida.</span><button class="btn sm danger" data-act="reset">Borrar y empezar de nuevo</button><button class="btn sm" data-act="cancelnew">Cancelar</button></span>`:`<button class="btn sm" data-act="asknew">Nueva partida</button>`}</footer>`;
+}
+function render(){
+  const y=window.scrollY;
+  $.innerHTML=(S&&(!LG||MYT>=0))?shell():(LG?vLeague():vPicker());
+  paintSave();
+  window.scrollTo(0,y);
+  maybeLive();
+}
+function updMins(){
+  const info=minsInfo(),a=document.getElementById("mtot"),b=document.getElementById("mstr"),c=document.getElementById("mauto");
+  if(a)a.textContent=info.tot;if(b)b.textContent=info.cur.toFixed(1);if(c)c.textContent=`(automático: ${info.auto.toFixed(1)})`;
+}
+const go0=(kind,m,f)=>commit(()=>go(kind,m,!!f));
+$.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act,d=b.dataset;
+  if(a==="pick")newGame(+d.i);
+  else if(a==="mode")setMode(d.m);
+  else if(a==="mkleague")createLeague(+d.i);
+  else if(a==="claim")claimTeam(+d.i);
+  else if(a==="lgrefresh"){tmsg="";loadLeague().then(render)}
+  else if(a==="tab"){view=d.v;tmsg="";render()}
+  else if(a==="sim")go0("rs",d.m,d.f);
+  else if(a==="live")startLive("rs");
+  else if(a==="livepo")startLive("po");
+  else if(a==="po")go0("po",d.m,d.f);
+  else if(a==="replay"){const x=S.dets&&S.dets[S.me];if(x)openLive(x)}
+  else if(a==="free"){const i=+d.i;commit(()=>{if(S.com!==MYID)return;delete S.owners[i];delete S.rdy[i];S.hum=Object.keys(S.owners).map(Number).sort((x,y)=>x-y)})}
+  else if(a==="prop")commit(()=>propAct(d.id,d.v==="acc"));
+  else if(a==="team"){viewTeam=+d.i;view="equipos";render();window.scrollTo(0,0)}
+  else if(a==="tradewith"){tt=+d.i;clearSel();tmsg="";view="traspasos";render();window.scrollTo(0,0)}
+  else if(a==="trade"){const N=tradeNames();commit(()=>{loadSel(N,S.me,N.to);doTrade()})}
+  else if(a==="cleartrade"){clearSel();tmsg="";render()}
+  else if(a==="auto")setAuto();
+  else if(a==="fit240")fit240();
+  else if(a==="ldmode"){ldPo=d.v==="1";render()}
+  else if(a==="asknew"){askNew=true;render()}
+  else if(a==="cancelnew"){askNew=false;render()}
+  else if(a==="reset")resetGame();
+  else if(a==="startdraft")commit(()=>startDraft());
+  else if(a==="draftpick"){const i=+d.i;commit(()=>{if(S.dr&&!S.dr.done&&S.dr.order[S.dr.pk]===S.me){draftTake(i);queueSave();render()}})}
+  else if(a==="dsim")commit(()=>draftSim(d.m));
+  else if(a==="cut"){const n=(S.teams[S.me].pl[+d.i]||{}).n;commit(()=>{const i=S.teams[S.me].pl.findIndex(p=>p.n===n);if(i>=0)cutPlayer(i)})}
+  else if(a==="sign"){const n=(S.fa[+d.i]||{}).n;commit(()=>{const i=S.fa.findIndex(p=>p.n===n);if(i>=0)signFA(i)})}
+  else if(a==="renew"){const n=(S.teams[S.me].pl[+d.i]||{}).n;commit(()=>{const i=S.teams[S.me].pl.findIndex(p=>p.n===n);if(i>=0)renew(i)})}
+  else if(a==="newseason")commit(()=>newSeason());
+  else if(a==="as")commit(()=>{if(d.k==="g")asSim();else contestSim(d.k);queueSave();render()});
+});
+$.addEventListener("input",e=>{
+  const r=e.target;if(!r.classList||!r.classList.contains("mrange"))return;
+  ensureManual();
+  const p=S.teams[S.me].pl[+r.dataset.pi];if(!p)return;
+  p.m=+r.value;
+  const lab=document.getElementById("mv-"+r.dataset.pi);if(lab)lab.textContent=p.m;
+  updMins();queueSave();
+});
+$.addEventListener("change",e=>{
+  const c=e.target;
+  if(c.id==="selTeam"){viewTeam=+c.value;render()}
+  else if(c.dataset&&c.dataset.asel){const k=c.dataset.asel,v=c.value;commit(()=>{const E=S.as.E=S.as.E||{};(E[S.me]=E[S.me]||{})[k]=v},true)}
+  else if(c.id==="selTrade"){tt=+c.value;clearSel();tmsg="";render()}
+  else if(c.dataset&&c.dataset.chk){const set={give:gs,get:rs,gpk:gp,rpk:rp}[c.dataset.chk],i=+c.dataset.i;if(c.checked)set.add(i);else set.delete(i);tmsg="";render()}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&LV&&!GM)closeLive()});
+
+/* ---------- arranque ---------- */
+(async()=>{
+  try{
+    const c=window.claude,db=c&&c.use?await c.use("db"):null,user=c&&c.use?await c.use("user"):null;
+    MYID=user?await user.id():null;
+    HOLD=(MYID||"x")+":"+Math.random().toString(36).slice(2,8);
+    if(db&&MYID){dbDoc=db.doc("data/users/"+MYID+"/partida");LGD=db.doc("league/main");LKD=db.doc("league/lock")}
+  }catch(e){}
+  let pref="";try{pref=localStorage.getItem("hardwood-mode")||""}catch(e){}
+  if(pref==="liga"&&LGD){LG=true;await loadLeague()}
+  else{
+    await loadSolo();
+    if(!S&&LGD&&!pref){
+      try{const snap=await LGD.get();if(snap.exists){const st=JSON.parse(snap.data().state);if(Object.values(st.owners||{}).some(x=>x.u===MYID)){LG=true;await loadLeague()}}}catch(e){}
+    }
+  }
+  render();
+})();
+</script>
+
+</body></html>
